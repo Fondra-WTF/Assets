@@ -1,11 +1,10 @@
--- Ignore this is for fondra.
-
-Fondra.Functions.DownloadAsset("Sounds/WTF.mp3", "https://github.com/Fondra-Hub/Assets/raw/main/Sounds/WTF.wav")
+Fondra.Functions.DownloadAsset("Sounds/Temporary.mp3", "https://github.com/Fondra-Hub/Assets/raw/main/Sounds/Temporary.mp3")
 
 local Sound = Instance.new("Sound")
-Sound.Parent = nil
-Sound.Volume = 2.5
-Sound.SoundId = Fondra.Functions.GetAsset("Sounds/WTF.mp3")
+Sound.TimePosition = 0.5
+Sound.Parent = workspace
+Sound.Volume = 5
+Sound.SoundId = Fondra.Functions.GetAsset("Sounds/Temporary.mp3")
 Sound:Play()
 
 Fondra.Services.Debris:AddItem(Sound, 5)
