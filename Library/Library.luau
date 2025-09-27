@@ -403,7 +403,7 @@ do
 		end
 
 		Functions["AddConnection"](nil, ToggleOutline.MouseButton1Down, function()
-			local NEW = not Toggle.Value
+			local NEW = not Toggle.Functions:Get().Value
 			Toggle.Functions:Set(NEW)
 		end)
 
@@ -1106,17 +1106,16 @@ do
 		local Options = {
 			Text = Options.Text or "KEY",
 			Side = Options.Side or "LEFT",
+			Flag = Options.Flag,
+			Callback = Options.Callback,
+			Input = Options.Input or Enum.KeyCode.E,
+			Mode = Options.Mode or "TOGGLE",
 		}
 
 		local Keybind = {
-			Text = Options.Text or "KEY",
-
-			Flag = Options.Flag,
-			Callback = Options.Callback,
-
-			Input = Options.Input or Enum.KeyCode.E,
-			Mode = Options.Mode or "TOGGLE",
-
+			Text = Options.Text,
+			Input = Options.Input,
+			Mode = Options.Mode,
 			Objects = {},
 			Functions = {},
 		}
@@ -1127,7 +1126,6 @@ do
 			Theme = { BackgroundColor3 = "Border 1" },
 			Parent = Holder,
 		})
-
 		local KeybindMiddle = Functions["Create"]("Frame", {
 			Size = UDim2.new(1, -2, 1, -2),
 			Position = UDim2.new(0.5, 0, 0.5, 0),
@@ -1135,7 +1133,6 @@ do
 			Theme = { BackgroundColor3 = "Option Background" },
 			Parent = KeybindOutline,
 		})
-
 		local KeybindInline = Functions["Create"]("Frame", {
 			Size = UDim2.new(1, -2, 1, -2),
 			Position = UDim2.new(0.5, 0, 0.5, 0),
@@ -1143,7 +1140,6 @@ do
 			Theme = { BackgroundColor3 = "Border 1" },
 			Parent = KeybindMiddle,
 		})
-
 		local KeybindFill = Functions["Create"]("Frame", {
 			Size = UDim2.new(1, -2, 1, -2),
 			Position = UDim2.new(0.5, 0, 0.5, 0),
@@ -1151,7 +1147,6 @@ do
 			Theme = { BackgroundColor3 = "Option Background" },
 			Parent = KeybindInline,
 		})
-
 		local KeybindLabel = Functions["Create"]("TextLabel", {
 			Parent = KeybindFill,
 			Text = UserInputService:GetStringForKeyCode(Keybind.Input) or "UNKNOWN",
@@ -1163,11 +1158,9 @@ do
 			TextSize = 12,
 			FontFace = CustomFont,
 		})
-
 		local KeybindLabelStroke = Functions["Create"]("UIStroke", {
 			Parent = KeybindLabel,
 		})
-
 		local KeybindModeListOutline = Functions["Create"]("TextButton", {
 			Theme = { BackgroundColor3 = "Border 1" },
 			Size = UDim2.new(0, 100, 0, (2 * 19) + 5),
@@ -1175,21 +1168,18 @@ do
 			Parent = ComponentsGUI,
 			Visible = false,
 		})
-
 		local KeybindModeListMiddle = Functions["Create"]("Frame", {
 			Theme = { BackgroundColor3 = "Border 2" },
 			Size = UDim2.new(1, -2, 1, -2),
 			Position = UDim2.new(0, 1, 0, 1),
 			Parent = KeybindModeListOutline,
 		})
-
 		local KeybindModeListInline = Functions["Create"]("Frame", {
 			Theme = { BackgroundColor3 = "Border 1" },
 			Size = UDim2.new(1, -2, 1, -2),
 			Position = UDim2.new(0, 1, 0, 1),
 			Parent = KeybindModeListMiddle,
 		})
-
 		local KeybindModeListFill = Functions["Create"]("Frame", {
 			Size = UDim2.new(1, 0, 1, 0),
 			Position = UDim2.new(0, 0, 0, 0),
@@ -1208,7 +1198,6 @@ do
 				Theme = { BackgroundColor3 = "Option Background" },
 				Parent = KeybindModeListFill,
 			})
-
 			local ModeLabel = Functions["Create"]("TextLabel", {
 				Parent = ModeFrame,
 				Text = Value,
@@ -1224,163 +1213,145 @@ do
 				Size = UDim2.new(1, 0, 1, 0),
 				FontFace = CustomFont,
 			})
-
 			local ModeLabelStroke = Functions["Create"]("UIStroke", {
 				Parent = ModeLabel,
 			})
-
 			Labels[Value] = ModeLabel
 			Functions["AddConnection"](nil, ModeFrame.MouseButton1Down, function()
-				Keybind["Functions"]["Set"](Keybind.Input, Value)
+				Keybind.Functions:Set(Keybind.Input, Value)
 			end)
 		end
 
-		do
-			Keybind["Functions"]["Set"] = function(Input, Mode)
-				local Display = (Input.Name == "Unknown" or Input.Name == "Delete") and "-"
-					or UserInputService:GetStringForKeyCode(Input)
-
-				KeybindLabel.Text = Display
-				Keybind.Input = Input
-				Keybind.Mode = Mode
-
-				if Display == "-" then
-					DisplayKeybind.Functions:SetVisible(false)
-				else
-					DisplayKeybind.Functions:SetVisible(true)
-				end
-
-				DisplayKeybind.Functions:SetIndex(Keybind.Text)
-				DisplayKeybind.Functions:SetValue(Display)
-
-				for Index, Object in next, Labels do
-					Functions["UpdateThemeRegistery"](
-						Object,
-						{ TextColor3 = Keybind.Mode == Index and "Accent" or "Inactive Text" }
-					)
-				end
+		function Keybind.Functions:Set(Input, Mode)
+			local Display = (Input.Name == "Unknown" or Input.Name == "Delete") and "-"
+				or UserInputService:GetStringForKeyCode(Input)
+			KeybindLabel.Text = Display
+			self.Input = Input
+			self.Mode = Mode
+			if Display == "-" then
+				DisplayKeybind.Functions:SetVisible(false)
+			else
+				DisplayKeybind.Functions:SetVisible(true)
 			end
-
-			Keybind["Functions"]["Get"] = function()
-				return { Input = Keybind.Input, Mode = Keybind.Mode }
+			DisplayKeybind.Functions:SetIndex(self.Text)
+			DisplayKeybind.Functions:SetValue(Display)
+			for Index, Object in next, Labels do
+				Functions["UpdateThemeRegistery"](
+					Object,
+					{ TextColor3 = self.Mode == Index and "Accent" or "Inactive Text" }
+				)
 			end
+		end
 
-			Keybind["Functions"]["Callback"] = function(Function)
-				Keybind.Callback = Function
+		function Keybind.Functions:Get()
+			return { Input = self.Input, Mode = self.Mode }
+		end
+
+		function Keybind.Functions:Callback(Function)
+			Options.Callback = Function
+		end
+
+		local Try = 0
+		Functions["AddConnection"](nil, KeybindOutline.MouseButton2Down, function()
+			KeybindModeListOutline.Visible = not KeybindModeListOutline.Visible
+			local AbsolutePosition = KeybindOutline.AbsolutePosition + GuiService:GetGuiInset()
+			KeybindModeListOutline.Position = UDim2.new(0, AbsolutePosition.X + 25, 0, AbsolutePosition.Y + 1)
+			Try = 0
+		end)
+
+		Functions["AddConnection"](nil, UserInputService.InputBegan, function(Input)
+			if
+				Input.UserInputType ~= Enum.UserInputType.MouseButton1
+				and Input.UserInputType ~= Enum.UserInputType.MouseButton2
+			then
+				return
 			end
+			if not KeybindModeListOutline.Visible then
+				return
+			end
+			if Try == 0 and Input.UserInputType == Enum.UserInputType.MouseButton2 then
+				Try = 1
+				return
+			end
+			local MousePosition = UserInputService:GetMouseLocation() - GuiService:GetGuiInset()
+			local AbsolutePosition = KeybindModeListOutline.AbsolutePosition
+			local AbsoluteSize = KeybindModeListOutline.AbsoluteSize
+			local Inside = MousePosition.X >= AbsolutePosition.X
+				and MousePosition.X <= AbsolutePosition.X + AbsoluteSize.X
+				and MousePosition.Y >= AbsolutePosition.Y
+				and MousePosition.Y <= AbsolutePosition.Y + AbsoluteSize.Y
+			if not Inside then
+				KeybindModeListOutline.Visible = false
+			end
+		end)
 
-			local Try = 0
-			Functions["AddConnection"](nil, KeybindOutline.MouseButton2Down, function()
-				KeybindModeListOutline.Visible = not KeybindModeListOutline.Visible
-				local AbsolutePosition = KeybindOutline.AbsolutePosition + GuiService:GetGuiInset()
-				KeybindModeListOutline.Position = UDim2.new(0, AbsolutePosition.X + 25, 0, AbsolutePosition.Y + 1)
-				Try = 0
-			end)
+		Functions["AddConnection"](nil, UserInputService.InputChanged, function(Input)
+			if Input.UserInputType ~= Enum.UserInputType.MouseWheel then
+				return
+			end
+			KeybindModeListOutline.Visible = false
+		end)
 
-			Functions["AddConnection"](nil, UserInputService.InputBegan, function(Input)
+		local Debounce = false
+		Functions["AddConnection"](nil, KeybindOutline.MouseButton1Down, function()
+			if Debounce then
+				return
+			end
+			Debounce = true
+			KeybindLabel.Text = "..."
+			local Index
+			Index = Functions["AddConnection"](nil, UserInputService.InputBegan, function(Input, Processed)
+				Debounce = false
 				if
-					Input.UserInputType ~= Enum.UserInputType.MouseButton1
-					and Input.UserInputType ~= Enum.UserInputType.MouseButton2
+					UserInputService:GetStringForKeyCode(Input.KeyCode) == ""
+					and Input.KeyCode ~= Enum.KeyCode.Delete
 				then
 					return
 				end
-				if not KeybindModeListOutline.Visible then
-					return
-				end
-				if Try == 0 and Input.UserInputType == Enum.UserInputType.MouseButton2 then
-					Try = 1
-					return
-				end
-
-				local MousePosition = UserInputService:GetMouseLocation() - GuiService:GetGuiInset()
-				local AbsolutePosition = KeybindModeListOutline.AbsolutePosition
-				local AbsoluteSize = KeybindModeListOutline.AbsoluteSize
-				local Inside = MousePosition.X >= AbsolutePosition.X
-					and MousePosition.X <= AbsolutePosition.X + AbsoluteSize.X
-					and MousePosition.Y >= AbsolutePosition.Y
-					and MousePosition.Y <= AbsolutePosition.Y + AbsoluteSize.Y
-
-				if not Inside then
-					KeybindModeListOutline.Visible = false
-				end
-			end)
-
-			Functions["AddConnection"](nil, UserInputService.InputChanged, function(Input)
-				if Input.UserInputType ~= Enum.UserInputType.MouseWheel then
-					return
-				end
-
-				KeybindModeListOutline.Visible = false
-			end)
-
-			local Debounce = false
-			Functions["AddConnection"](nil, KeybindOutline.MouseButton1Down, function()
-				if Debounce then
-					return
-				end
-
-				Debounce = true
-				KeybindLabel.Text = "..."
-
-				local Index
-				Index = Functions["AddConnection"](nil, UserInputService.InputBegan, function(Input, Processed)
-					Debounce = false
-
-					if
-						UserInputService:GetStringForKeyCode(Input.KeyCode) == ""
-						and Input.KeyCode ~= Enum.KeyCode.Delete
-					then
-						return
-					end
-
-					if Input.KeyCode == Enum.KeyCode.Delete then
-						Keybind["Functions"]["Set"](Enum.KeyCode.Unknown, Keybind.Mode)
-					elseif Input.KeyCode ~= Enum.KeyCode.Unknown then
-						Keybind["Functions"]["Set"](Input.KeyCode, Keybind.Mode)
-					end
-
-					Functions["RemoveConnection"](Index)
-				end)
-			end)
-
-			Functions["AddConnection"](nil, UserInputService.InputBegan, function(Input, Processed)
-				if Processed then
-					return
-				end
-
 				if Input.KeyCode == Enum.KeyCode.Delete then
-					return
+					Keybind.Functions:Set(Enum.KeyCode.Unknown, Keybind.Mode)
+				elseif Input.KeyCode ~= Enum.KeyCode.Unknown then
+					Keybind.Functions:Set(Input.KeyCode, Keybind.Mode)
 				end
-
-				if Input.KeyCode == Keybind.Input or Input.UserInputType == Keybind.Input then
-					if Keybind.Mode == "TOGGLE" then
-						local NEW = not Parent.Value
-						Parent["Functions"]["Set"](NEW)
-						DisplayKeybind.Functions:SetTheme({ TextColor3 = NEW and "Accent" or "Inactive Text" })
-					elseif Keybind.Mode == "HOLD" then
-						Parent["Functions"]["Set"](true)
-						DisplayKeybind.Functions:SetTheme({ TextColor3 = "Accent" })
-					end
-				end
+				Functions["RemoveConnection"](Index)
 			end)
+		end)
 
-			Functions["AddConnection"](nil, UserInputService.InputEnded, function(Input, Processed)
-				if Input.KeyCode == Enum.KeyCode.Delete then
-					return
+		Functions["AddConnection"](nil, UserInputService.InputBegan, function(Input, Processed)
+			if Processed then
+				return
+			end
+			if Input.KeyCode == Enum.KeyCode.Delete then
+				return
+			end
+			if Input.KeyCode == Keybind.Input or Input.UserInputType == Keybind.Input then
+				if Keybind.Mode == "TOGGLE" then
+					local NEW = not Parent.Value
+					Parent["Functions"]["Set"](NEW)
+					DisplayKeybind.Functions:SetTheme({ TextColor3 = NEW and "Accent" or "Inactive Text" })
+				elseif Keybind.Mode == "HOLD" then
+					Parent["Functions"]["Set"](true)
+					DisplayKeybind.Functions:SetTheme({ TextColor3 = "Accent" })
 				end
+			end
+		end)
 
-				if Input.KeyCode == Keybind.Input or Input.UserInputType == Keybind.Input then
-					if Keybind.Mode == "HOLD" then
-						Parent["Functions"]["Set"](false)
-						DisplayKeybind.Functions:SetTheme({ TextColor3 = "Inactive Text" })
-					end
+		Functions["AddConnection"](nil, UserInputService.InputEnded, function(Input, Processed)
+			if Input.KeyCode == Enum.KeyCode.Delete then
+				return
+			end
+			if Input.KeyCode == Keybind.Input or Input.UserInputType == Keybind.Input then
+				if Keybind.Mode == "HOLD" then
+					Parent["Functions"]["Set"](false)
+					DisplayKeybind.Functions:SetTheme({ TextColor3 = "Inactive Text" })
 				end
-			end)
-		end
+			end
+		end)
 
-		Keybind["Functions"]["Set"](Keybind.Input, Keybind.Mode)
-		if Keybind.Flag then
-			Library.Flags["Keybind"][Keybind.Flag] = Keybind
+		Keybind.Functions:Set(Keybind.Input, Keybind.Mode)
+
+		if Options.Flag then
+			Library.Flags["Keybind"][Options.Flag] = Keybind
 		end
 
 		return Keybind
@@ -1391,20 +1362,23 @@ do
 	Functions["AddConnection"](nil, RunService.Heartbeat, function()
 		for Colorpicker, Mode in next, Pickers do
 			if Mode == "RAINBOW" then
-				Colorpicker["Functions"]["Set"](Color3.fromHSV((tick() % 5) / 5, 1, 1), Colorpicker.Current[4])
+				Colorpicker.Functions:Set(Color3.fromHSV((tick() % 5) / 5, 1, 1), Colorpicker.Current[4])
 			end
 		end
 	end)
 
 	Components["Colorpicker"] = function(Holder, Parent, Options)
-		local HH, SS, VV = (Options.Color or Color3.new(0, 1, 1)):ToHSV()
-		local Colorpicker = {
+		local Options = {
+			Color = Options.Color or Color3.new(0, 1, 1),
+			Alpha = Options.Alpha,
 			Flag = Options.Flag,
 			Callback = Options.Callback,
+		}
 
-			Current = { HH, SS, VV, Options.Alpha or nil },
+		local HH, SS, VV = Options.Color:ToHSV()
+		local Colorpicker = {
+			Current = { HH, SS, VV, Options.Alpha },
 			Mode = "NONE",
-
 			Objects = {},
 			Functions = {},
 		}
@@ -1415,7 +1389,6 @@ do
 			Theme = { BackgroundColor3 = "Border 1" },
 			Parent = Holder,
 		})
-
 		local ColorpickerMiddle = Functions["Create"]("Frame", {
 			Size = UDim2.new(1, -2, 1, -2),
 			Position = UDim2.new(0.5, 0, 0.5, 0),
@@ -1423,7 +1396,6 @@ do
 			Theme = { BackgroundColor3 = "Option Background" },
 			Parent = ColorpickerOutline,
 		})
-
 		local ColorpickerInline = Functions["Create"]("Frame", {
 			Size = UDim2.new(1, -2, 1, -2),
 			Position = UDim2.new(0.5, 0, 0.5, 0),
@@ -1431,7 +1403,6 @@ do
 			Theme = { BackgroundColor3 = "Border 1" },
 			Parent = ColorpickerMiddle,
 		})
-
 		local ColorpickerFill = Functions["Create"]("Frame", {
 			Size = UDim2.new(1, -2, 1, -2),
 			Position = UDim2.new(0.5, 0, 0.5, 0),
@@ -1439,7 +1410,6 @@ do
 			BackgroundColor3 = Color3.fromHSV(HH, SS, VV),
 			Parent = ColorpickerInline,
 		})
-
 		local ColorpickerDropdownOutline = Functions["Create"]("TextButton", {
 			Theme = { BackgroundColor3 = "Border 1" },
 			Size = UDim2.new(0, Colorpicker.Current[4] and 150 or 131, 0, 170),
@@ -1448,21 +1418,18 @@ do
 			Visible = false,
 			Name = "COLORPICKER",
 		})
-
 		local ColorpickerDropdownFill = Functions["Create"]("Frame", {
 			Size = UDim2.new(1, -2, 1, -2),
 			Position = UDim2.new(0, 1, 0, 1),
 			Parent = ColorpickerDropdownOutline,
 			Theme = { BackgroundColor3 = "Option Background" },
 		})
-
 		local ColorpickerDropdownHolder = Functions["Create"]("Frame", {
 			Size = UDim2.new(1, -2, 1, -2),
 			Position = UDim2.new(0, 1, 0, 1),
 			Parent = ColorpickerDropdownFill,
 			BackgroundTransparency = 1,
 		})
-
 		local ColorpickerDropdownLayout = Functions["Create"]("UIListLayout", {
 			Parent = ColorpickerDropdownHolder,
 			HorizontalAlignment = Enum.HorizontalAlignment.Center,
@@ -1476,34 +1443,29 @@ do
 			Parent = ColorpickerDropdownHolder,
 			BackgroundTransparency = 1,
 		})
-
 		local ColorpickerActionsHolder = Functions["Create"]("Frame", {
 			Size = UDim2.new(1, 0, 0.24, -1),
 			Position = UDim2.new(0, 0, 1, 0),
 			Parent = ColorpickerDropdownHolder,
 			BackgroundTransparency = 1,
 		})
-
 		local ColorpickerMainLayout = Functions["Create"]("UIListLayout", {
 			Parent = ColorpickerMainHolder,
 			HorizontalAlignment = Enum.HorizontalAlignment.Center,
 			FillDirection = Enum.FillDirection.Horizontal,
 			Padding = UDim.new(0, 1),
 		})
-
 		local ColorpickerColorBoxOutline = Functions["Create"]("Frame", {
 			Size = UDim2.new(0, Colorpicker.Current[4] and 116 or 112, 1, 0),
 			Theme = { BackgroundColor3 = "Border 1" },
 			Parent = ColorpickerMainHolder,
 		})
-
 		local ColorpickerColorBoxFill = Functions["Create"]("TextButton", {
 			Size = UDim2.new(1, -2, 1, -2),
 			Position = UDim2.new(0.5, 0, 0.5, 0),
 			AnchorPoint = Vector2.new(0.5, 0.5),
 			Parent = ColorpickerColorBoxOutline,
 		})
-
 		local ColorpickerColorBoxSaturationOne = Functions["Create"]("ImageLabel", {
 			Size = UDim2.new(1, 0, 1, 0),
 			Parent = ColorpickerColorBoxFill,
@@ -1511,7 +1473,6 @@ do
 			Rotation = -180,
 			Image = Functions["CustomAsset"]("Fondra/Assets/Images/Saturation One.png"),
 		})
-
 		local ColorpickerColorBoxSaturationTwo = Functions["Create"]("ImageLabel", {
 			Size = UDim2.new(1, 0, 1, 0),
 			Parent = ColorpickerColorBoxFill,
@@ -1519,7 +1480,6 @@ do
 			Image = Functions["CustomAsset"]("Fondra/Assets/Images/Saturation Two.png"),
 			Rotation = 0,
 		})
-
 		local ColorpickerColorBoxCursorOutline = Functions["Create"]("Frame", {
 			Size = UDim2.new(0, 5, 0, 5),
 			Parent = ColorpickerColorBoxFill,
@@ -1528,7 +1488,6 @@ do
 			Interactable = false,
 			Active = false,
 		})
-
 		local ColorpickerColorBoxCursorFill = Functions["Create"]("Frame", {
 			Size = UDim2.new(1, -2, 1, -2),
 			Position = UDim2.new(0, 1, 0, 1),
@@ -1537,14 +1496,12 @@ do
 			Interactable = false,
 			Active = false,
 		})
-
 		local ColorpickerButtonsHolder = Functions["Create"]("Frame", {
 			Parent = ColorpickerActionsHolder,
 			Size = UDim2.new(1, 0, 0.5, 0),
 			BackgroundColor3 = Color3.new(math.random(), math.random(), math.random()),
 			Transparency = Library.Debug and 0 or 1,
 		})
-
 		local Component = Components["Button"](ColorpickerButtonsHolder, {
 			Text = "COPY",
 			Result = "COPIED",
@@ -1558,10 +1515,9 @@ do
 				Result = "PASTED",
 				Callback = function()
 					local H, S, V, Alpha = unpack(Copied)
-					Colorpicker["Functions"]["Set"](Color3.fromHSV(H, S, V), Alpha and Alpha or Colorpicker.Current[4])
+					Colorpicker.Functions:Set(Color3.fromHSV(H, S, V), Alpha and Alpha or Colorpicker.Current[4])
 				end,
 			})
-
 		local ColorpickerDropdownHolder = Functions["Create"]("Frame", {
 			Parent = ColorpickerActionsHolder,
 			Size = UDim2.new(1, 0, 0.5, -1),
@@ -1570,7 +1526,6 @@ do
 			AnchorPoint = Vector2.new(0, 1),
 			Position = UDim2.new(0, 0, 1, 0),
 		})
-
 		local Component = Components["Dropdown"](ColorpickerDropdownHolder, {
 			Text = "MODE",
 			Options = { "NONE", "RAINBOW" },
@@ -1591,10 +1546,9 @@ do
 					local S = math.clamp(MousePos.X / ColorpickerColorBoxFill.AbsoluteSize.X, 0, 1)
 					local V = 1 - math.clamp(MousePos.Y / ColorpickerColorBoxFill.AbsoluteSize.Y, 0, 1)
 					local H = Colorpicker.Current[1]
-					Colorpicker["Functions"]["Set"](Color3.fromHSV(H, S, V))
+					Colorpicker.Functions:Set(Color3.fromHSV(H, S, V))
 				end
 			end)
-
 			Functions["AddConnection"]("ColorpickerEnd", UserInputService.InputEnded, function(Input)
 				if Input.UserInputType == Enum.UserInputType.MouseButton1 then
 					Functions["RemoveConnection"]("ColorpickerMove")
@@ -1608,7 +1562,6 @@ do
 			Theme = { BackgroundColor3 = "Border 1" },
 			Parent = ColorpickerMainHolder,
 		})
-
 		local ColorpickerHueMiddle = Functions["Create"]("Frame", {
 			Size = UDim2.new(1, -2, 1, -2),
 			Position = UDim2.new(0.5, 0, 0.5, 0),
@@ -1616,7 +1569,6 @@ do
 			Theme = { BackgroundColor3 = "Option Background" },
 			Parent = ColorpickerHueOutline,
 		})
-
 		local ColorpickerHueInline = Functions["Create"]("ImageButton", {
 			Size = UDim2.new(1, -2, 1, -2),
 			Position = UDim2.new(0.5, 0, 0.5, 0),
@@ -1625,14 +1577,12 @@ do
 			Image = Functions["CustomAsset"]("Fondra/Assets/Images/Hue.png"),
 			Parent = ColorpickerHueMiddle,
 		})
-
 		local ColorpickerHueCursorOutline = Functions["Create"]("Frame", {
 			Size = UDim2.new(1, -4, 0, 3),
 			Position = UDim2.new(0, 2, 0, 0),
 			BackgroundColor3 = Color3.fromRGB(0, 0, 0),
 			Parent = ColorpickerHueInline,
 		})
-
 		local ColorpickerHueCursorFill = Functions["Create"]("ImageButton", {
 			Size = UDim2.new(1, -2, 1, -2),
 			Position = UDim2.new(0.5, 0, 0.5, 0),
@@ -1652,10 +1602,9 @@ do
 					)
 					local H = Y / ColorpickerHueInline.AbsoluteSize.Y
 					local S, V = Colorpicker.Current[2], Colorpicker.Current[3]
-					Colorpicker["Functions"]["Set"](Color3.fromHSV(H, S, V))
+					Colorpicker.Functions:Set(Color3.fromHSV(H, S, V))
 				end
 			end)
-
 			Functions["AddConnection"]("HueEnd", UserInputService.InputEnded, function(Input)
 				if Input.UserInputType == Enum.UserInputType.MouseButton1 then
 					Functions["RemoveConnection"]("HueMove")
@@ -1670,7 +1619,6 @@ do
 				Theme = { BackgroundColor3 = "Border 1" },
 				Parent = ColorpickerMainHolder,
 			})
-
 			local ColorpickerAlphaMiddle = Functions["Create"]("Frame", {
 				Size = UDim2.new(1, -2, 1, -2),
 				Position = UDim2.new(0.5, 0, 0.5, 0),
@@ -1678,7 +1626,6 @@ do
 				Theme = { BackgroundColor3 = "Option Background" },
 				Parent = ColorpickerAlphaOutline,
 			})
-
 			local ColorpickerAlphaInline = Functions["Create"]("ImageButton", {
 				Size = UDim2.new(1, -2, 1, -2),
 				Position = UDim2.new(0.5, 0, 0.5, 0),
@@ -1687,14 +1634,12 @@ do
 				Parent = ColorpickerAlphaMiddle,
 				Image = Functions["CustomAsset"]("Fondra/Assets/Images/Alpha.png"),
 			})
-
 			local ColorpickerAlphaCursorOutline = Functions["Create"]("Frame", {
 				Size = UDim2.new(1, -4, 0, 3),
 				Position = UDim2.new(0, 2, 0, 0),
 				BackgroundColor3 = Color3.fromRGB(0, 0, 0),
 				Parent = ColorpickerAlphaInline,
 			})
-
 			local ColorpickerAlphaCursorFill = Functions["Create"]("ImageButton", {
 				Size = UDim2.new(1, -2, 1, -2),
 				Position = UDim2.new(0.5, 0, 0.5, 0),
@@ -1714,10 +1659,9 @@ do
 						)
 						local AlphaValue = 1 - (Y / ColorpickerAlphaInline.AbsoluteSize.Y)
 						local H, S, V = unpack(Colorpicker.Current)
-						Colorpicker["Functions"]["Set"](Color3.fromHSV(H, S, V), AlphaValue)
+						Colorpicker.Functions:Set(Color3.fromHSV(H, S, V), AlphaValue)
 					end
 				end)
-
 				Functions["AddConnection"]("AlphaEnd", UserInputService.InputEnded, function(Input)
 					if Input.UserInputType == Enum.UserInputType.MouseButton1 then
 						Functions["RemoveConnection"]("AlphaMove")
@@ -1730,134 +1674,111 @@ do
 			Colorpicker.Objects.AlphaInline = ColorpickerAlphaInline
 		end
 
-		do
-			Colorpicker["Functions"]["Set"] = function(NewColor, Alpha, Mode)
-				local H, S, V = Color3.toHSV(NewColor)
-
-				if Colorpicker.Current[4] ~= nil then
-					Alpha = Alpha or Colorpicker.Current[4]
-					Colorpicker.Current = { H, S, V, Alpha }
-				else
-					Colorpicker.Current = { H, S, V }
-				end
-
-				ColorpickerFill.BackgroundColor3 = Color3.fromHSV(H, S, V)
-
-				if Colorpicker.Current[4] ~= nil then
-					ColorpickerFill.BackgroundTransparency = 1 - Colorpicker.Current[4]
-
-					if Colorpicker.Objects.AlphaCursor and Colorpicker.Objects.AlphaInline then
-						Colorpicker.Objects.AlphaCursor.Position = UDim2.new(
-							0,
-							2,
-							0,
-							(1 - Colorpicker.Current[4]) * Colorpicker.Objects.AlphaInline.AbsoluteSize.Y
-						)
-
-						Colorpicker.Objects.AlphaInline.BackgroundColor3 = Color3.fromHSV(H, S, V)
-					end
-				else
-					ColorpickerFill.BackgroundTransparency = 0
-				end
-
-				ColorpickerColorBoxFill.BackgroundColor3 = Color3.fromHSV(H, 1, 1)
-				ColorpickerHueCursorOutline.Position = UDim2.new(0, 2, 0, H * ColorpickerHueInline.AbsoluteSize.Y)
-				ColorpickerColorBoxCursorOutline.Position = UDim2.new(
-					0,
-					S * ColorpickerColorBoxFill.AbsoluteSize.X,
-					0,
-					(1 - V) * ColorpickerColorBoxFill.AbsoluteSize.Y
-				)
-
-				if Mode then
-					Pickers[Colorpicker] = Mode
-				end
-
-				if Colorpicker.Callback then
-					task.spawn(Colorpicker.Callback, Colorpicker.Current)
-				end
+		function Colorpicker.Functions:Set(NewColor, Alpha, Mode)
+			local H, S, V = Color3.toHSV(NewColor)
+			if self.Current[4] ~= nil then
+				Alpha = Alpha or self.Current[4]
+				self.Current = { H, S, V, Alpha }
+			else
+				self.Current = { H, S, V }
 			end
-
-			Colorpicker["Functions"]["Get"] = function()
-				return { Current = Colorpicker.Current, Mode = Colorpicker.Mode }
+			ColorpickerFill.BackgroundColor3 = Color3.fromHSV(H, S, V)
+			if self.Current[4] ~= nil then
+				ColorpickerFill.BackgroundTransparency = 1 - self.Current[4]
+				if self.Objects.AlphaCursor and self.Objects.AlphaInline then
+					self.Objects.AlphaCursor.Position =
+						UDim2.new(0, 2, 0, (1 - self.Current[4]) * self.Objects.AlphaInline.AbsoluteSize.Y)
+					self.Objects.AlphaInline.BackgroundColor3 = Color3.fromHSV(H, S, V)
+				end
+			else
+				ColorpickerFill.BackgroundTransparency = 0
 			end
-
-			Colorpicker["Functions"]["Callback"] = function(Function)
-				Colorpicker.Callback = Function
+			ColorpickerColorBoxFill.BackgroundColor3 = Color3.fromHSV(H, 1, 1)
+			ColorpickerHueCursorOutline.Position = UDim2.new(0, 2, 0, H * ColorpickerHueInline.AbsoluteSize.Y)
+			ColorpickerColorBoxCursorOutline.Position = UDim2.new(
+				0,
+				S * ColorpickerColorBoxFill.AbsoluteSize.X,
+				0,
+				(1 - V) * ColorpickerColorBoxFill.AbsoluteSize.Y
+			)
+			if Mode then
+				Pickers[self] = Mode
 			end
+			if Options.Callback then
+				task.spawn(Options.Callback, self.Current)
+			end
+		end
 
-			local Try = 0
-			Functions["AddConnection"](nil, UserInputService.InputBegan, function(Input)
-				if
-					Input.UserInputType ~= Enum.UserInputType.MouseButton1
-					and Input.UserInputType ~= Enum.UserInputType.MouseButton2
-				then
-					return
-				end
-				if not ColorpickerDropdownOutline.Visible then
-					return
-				end
-				if Try == 0 then
-					Try = 1
-					return
-				end
+		function Colorpicker.Functions:Get()
+			return { Current = self.Current, Mode = self.Mode }
+		end
 
-				local MousePosition = UserInputService:GetMouseLocation() - GuiService:GetGuiInset()
-				local AbsolutePosition = ColorpickerDropdownOutline.AbsolutePosition
-				local AbsoluteSize = ColorpickerDropdownOutline.AbsoluteSize
-				local Inside = MousePosition.X >= AbsolutePosition.X
-					and MousePosition.X <= AbsolutePosition.X + AbsoluteSize.X
-					and MousePosition.Y >= AbsolutePosition.Y
-					and MousePosition.Y <= AbsolutePosition.Y + AbsoluteSize.Y
+		function Colorpicker.Functions:Callback(Function)
+			Options.Callback = Function
+		end
 
-				if not Inside then
-					local A = 0
-
-					-- Dumbest most garbage working fix.
-					for i, v in next, ComponentsGUI:GetChildren() do
-						if not v.Visible then
-							continue
-						end
-
-						if v == ColorpickerDropdownOutline then
-							continue
-						end
-
-						if v.Name ~= "DROPDOWN" and v.Name ~= "COLORPICKER" then
-							continue
-						end
-
-						A += 1
+		local Try = 0
+		Functions["AddConnection"](nil, UserInputService.InputBegan, function(Input)
+			if
+				Input.UserInputType ~= Enum.UserInputType.MouseButton1
+				and Input.UserInputType ~= Enum.UserInputType.MouseButton2
+			then
+				return
+			end
+			if not ColorpickerDropdownOutline.Visible then
+				return
+			end
+			if Try == 0 then
+				Try = 1
+				return
+			end
+			local MousePosition = UserInputService:GetMouseLocation() - GuiService:GetGuiInset()
+			local AbsolutePosition = ColorpickerDropdownOutline.AbsolutePosition
+			local AbsoluteSize = ColorpickerDropdownOutline.AbsoluteSize
+			local Inside = MousePosition.X >= AbsolutePosition.X
+				and MousePosition.X <= AbsolutePosition.X + AbsoluteSize.X
+				and MousePosition.Y >= AbsolutePosition.Y
+				and MousePosition.Y <= AbsolutePosition.Y + AbsoluteSize.Y
+			if not Inside then
+				local A = 0
+				-- Dumbest most garbage working fix.
+				for i, v in next, ComponentsGUI:GetChildren() do
+					if not v.Visible then
+						continue
 					end
-
-					if A >= 1 then
-						return
+					if v == ColorpickerDropdownOutline then
+						continue
 					end
-
-					ColorpickerDropdownOutline.Visible = false
+					if v.Name ~= "DROPDOWN" and v.Name ~= "COLORPICKER" then
+						continue
+					end
+					A += 1
 				end
-			end)
-
-			Functions["AddConnection"](nil, UserInputService.InputChanged, function(Input)
-				if Input.UserInputType ~= Enum.UserInputType.MouseWheel then
+				if A >= 1 then
 					return
 				end
-
 				ColorpickerDropdownOutline.Visible = false
-			end)
-
-			Functions["AddConnection"](nil, ColorpickerOutline.MouseButton1Down, function()
-				ColorpickerDropdownOutline.Visible = not ColorpickerDropdownOutline.Visible
-
-				local AbsolutePosition = ColorpickerOutline.AbsolutePosition + GuiService:GetGuiInset()
-				ColorpickerDropdownOutline.Position = UDim2.new(0, AbsolutePosition.X + 25, 0, AbsolutePosition.Y + 1)
-				Try = 0
-			end)
-
-			Colorpicker["Functions"]["Set"](Color3.fromHSV(HH, SS, VV), Colorpicker.Current[4], Colorpicker.Mode)
-			if Colorpicker.Flag then
-				Library.Flags["Colorpicker"][Colorpicker.Flag] = Colorpicker
 			end
+		end)
+
+		Functions["AddConnection"](nil, UserInputService.InputChanged, function(Input)
+			if Input.UserInputType ~= Enum.UserInputType.MouseWheel then
+				return
+			end
+			ColorpickerDropdownOutline.Visible = false
+		end)
+
+		Functions["AddConnection"](nil, ColorpickerOutline.MouseButton1Down, function()
+			ColorpickerDropdownOutline.Visible = not ColorpickerDropdownOutline.Visible
+			local AbsolutePosition = ColorpickerOutline.AbsolutePosition + GuiService:GetGuiInset()
+			ColorpickerDropdownOutline.Position = UDim2.new(0, AbsolutePosition.X + 25, 0, AbsolutePosition.Y + 1)
+			Try = 0
+		end)
+
+		Colorpicker.Functions:Set(Color3.fromHSV(HH, SS, VV), Colorpicker.Current[4], Colorpicker.Mode)
+
+		if Options.Flag then
+			Library.Flags["Colorpicker"][Options.Flag] = Colorpicker
 		end
 
 		return Colorpicker
@@ -4029,7 +3950,5 @@ do
 		return Menu
 	end
 end
-
-getgenv().Library = Library
 
 return Library
