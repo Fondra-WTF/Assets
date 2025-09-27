@@ -366,7 +366,7 @@ do
 		end
 
 		function Toggle.Functions:Set(Bool)
-			self.Value = Bool
+			Toggle.Value = Bool
 			Functions["UpdateThemeRegistery"](
 				ToggleMiddle,
 				{ BackgroundColor3 = Bool and "Accent" or "Option Background" }
@@ -381,7 +381,7 @@ do
 		end
 
 		function Toggle.Functions:Get()
-			return { Value = self.Value }
+			return { Value = Toggle.Value }
 		end
 
 		function Toggle.Functions:Callback(Function)
@@ -403,8 +403,7 @@ do
 		end
 
 		Functions["AddConnection"](nil, ToggleOutline.MouseButton1Down, function()
-			local NEW = not Toggle.Functions:Get().Value
-			Toggle.Functions:Set(NEW)
+			Toggle.Functions:Set(not Toggle.Value)
 		end)
 
 		Toggle.Functions:Set(Toggle.Value)
@@ -510,22 +509,22 @@ do
 				Number = math.floor(Number + 0.5)
 			end
 
-			self.Current = math.clamp(Number, Options.Minimum, Options.Maximum)
+			Slider.Current = math.clamp(Number, Options.Minimum, Options.Maximum)
 
-			local Percentage = (self.Current - Options.Minimum) / (Options.Maximum - Options.Minimum)
+			local Percentage = (Slider.Current - Options.Minimum) / (Options.Maximum - Options.Minimum)
 			SliderAccent.Size = UDim2.new(Percentage, 0, 1, 0)
 			SliderAmountLabel.Text = Options.Format
 				:gsub("${MINIMUM}", tostring(Options.Minimum))
-				:gsub("${CURRENT}", tostring(self.Current))
+				:gsub("${CURRENT}", tostring(Slider.Current))
 				:gsub("${MAXIMUM}", tostring(Options.Maximum))
 
 			if Options.Callback then
-				task.spawn(Options.Callback, self.Current)
+				task.spawn(Options.Callback, Slider.Current)
 			end
 		end
 
 		function Slider.Functions:Get()
-			return { Current = self.Current }
+			return { Current = Slider.Current }
 		end
 
 		function Slider.Functions:Callback(Function)
@@ -714,17 +713,17 @@ do
 					nil,
 					DropdownFrame.MouseButton1Down,
 					function()
-						if table.find(self.Current, Value) then
-							if #self.Current > Options.Minimum then
-								local Table = self.Current
+						if table.find(Dropdown.Current, Value) then
+							if #Dropdown.Current > Options.Minimum then
+								local Table = Dropdown.Current
 								table.remove(Table, table.find(Table, Value))
 								self:Set(Table)
 							end
 						else
 							if Options.Maximum == 1 then
 								self:Set({ Value })
-							elseif #self.Current < Options.Maximum then
-								local Table = self.Current
+							elseif #Dropdown.Current < Options.Maximum then
+								local Table = Dropdown.Current
 								Table[#Table + 1] = Value
 								self:Set(Table)
 							end
@@ -737,9 +736,9 @@ do
 		end
 
 		function Dropdown.Functions:Set(List)
-			self.Current = List
+			Dropdown.Current = List
 
-			local FullText = table.concat(self.Current, ", ")
+			local FullText = table.concat(Dropdown.Current, ", ")
 			DropdownSelectedLabel.Text = (#FullText > 14)
 					and (string.sub(
 						FullText,
@@ -751,7 +750,7 @@ do
 				or FullText
 
 			for Index, Object in next, Objects do
-				if table.find(self.Current, Index) then
+				if table.find(Dropdown.Current, Index) then
 					Functions["UpdateThemeRegistery"](Object["Label"], { TextColor3 = "Accent" })
 				else
 					Functions["UpdateThemeRegistery"](Object["Label"], { TextColor3 = "Inactive Text" })
@@ -764,7 +763,7 @@ do
 		end
 
 		function Dropdown.Functions:Get()
-			return { Current = self.Current }
+			return { Current = Dropdown.Current }
 		end
 
 		function Dropdown.Functions:Callback(Function)
@@ -1020,7 +1019,7 @@ do
 		})
 
 		function TextBox.Functions:Set(Text)
-			self.Text = Text
+			TextBox.Text = Text
 			TextBoxFill.Text = Text
 
 			if Options.Callback then
@@ -1029,7 +1028,7 @@ do
 		end
 
 		function TextBox.Functions:Get()
-			return { Text = self.Text }
+			return { Text = TextBox.Text }
 		end
 
 		function TextBox.Functions:Callback(Function)
@@ -1226,25 +1225,25 @@ do
 			local Display = (Input.Name == "Unknown" or Input.Name == "Delete") and "-"
 				or UserInputService:GetStringForKeyCode(Input)
 			KeybindLabel.Text = Display
-			self.Input = Input
-			self.Mode = Mode
+			Keybind.Input = Input
+			Keybind.Mode = Mode
 			if Display == "-" then
 				DisplayKeybind.Functions:SetVisible(false)
 			else
 				DisplayKeybind.Functions:SetVisible(true)
 			end
-			DisplayKeybind.Functions:SetIndex(self.Text)
+			DisplayKeybind.Functions:SetIndex(Keybind.Text)
 			DisplayKeybind.Functions:SetValue(Display)
 			for Index, Object in next, Labels do
 				Functions["UpdateThemeRegistery"](
 					Object,
-					{ TextColor3 = self.Mode == Index and "Accent" or "Inactive Text" }
+					{ TextColor3 = Keybind.Mode == Index and "Accent" or "Inactive Text" }
 				)
 			end
 		end
 
 		function Keybind.Functions:Get()
-			return { Input = self.Input, Mode = self.Mode }
+			return { Input = Keybind.Input, Mode = Keybind.Mode }
 		end
 
 		function Keybind.Functions:Callback(Function)
@@ -1676,19 +1675,19 @@ do
 
 		function Colorpicker.Functions:Set(NewColor, Alpha, Mode)
 			local H, S, V = Color3.toHSV(NewColor)
-			if self.Current[4] ~= nil then
-				Alpha = Alpha or self.Current[4]
-				self.Current = { H, S, V, Alpha }
+			if Colorpicker.Current[4] ~= nil then
+				Alpha = Alpha or Colorpicker.Current[4]
+				Colorpicker.Current = { H, S, V, Alpha }
 			else
-				self.Current = { H, S, V }
+				Colorpicker.Current = { H, S, V }
 			end
 			ColorpickerFill.BackgroundColor3 = Color3.fromHSV(H, S, V)
-			if self.Current[4] ~= nil then
-				ColorpickerFill.BackgroundTransparency = 1 - self.Current[4]
-				if self.Objects.AlphaCursor and self.Objects.AlphaInline then
-					self.Objects.AlphaCursor.Position =
-						UDim2.new(0, 2, 0, (1 - self.Current[4]) * self.Objects.AlphaInline.AbsoluteSize.Y)
-					self.Objects.AlphaInline.BackgroundColor3 = Color3.fromHSV(H, S, V)
+			if Colorpicker.Current[4] ~= nil then
+				ColorpickerFill.BackgroundTransparency = 1 - Colorpicker.Current[4]
+				if Colorpicker.Objects.AlphaCursor and Colorpicker.Objects.AlphaInline then
+					Colorpicker.Objects.AlphaCursor.Position =
+						UDim2.new(0, 2, 0, (1 - Colorpicker.Current[4]) * Colorpicker.Objects.AlphaInline.AbsoluteSize.Y)
+					Colorpicker.Objects.AlphaInline.BackgroundColor3 = Color3.fromHSV(H, S, V)
 				end
 			else
 				ColorpickerFill.BackgroundTransparency = 0
@@ -1702,15 +1701,15 @@ do
 				(1 - V) * ColorpickerColorBoxFill.AbsoluteSize.Y
 			)
 			if Mode then
-				Pickers[self] = Mode
+				Pickers[Colorpicker] = Mode
 			end
 			if Options.Callback then
-				task.spawn(Options.Callback, self.Current)
+				task.spawn(Options.Callback, Colorpicker.Current)
 			end
 		end
 
 		function Colorpicker.Functions:Get()
-			return { Current = self.Current, Mode = self.Mode }
+			return { Current = Colorpicker.Current, Mode = Colorpicker.Mode }
 		end
 
 		function Colorpicker.Functions:Callback(Function)
