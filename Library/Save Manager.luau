@@ -76,7 +76,11 @@ do
 
 	function SaveManager:SaveConfig(Name)
 		if Name:gsub(" ", "") == "" then
-			return self.Library["Notification"]("[SaveManager]: Invalid file name for config. [Empty]", 3, Color3.fromRGB(255, 0, 0))
+			return self.Library["Notification"](
+				"[SaveManager]: Invalid file name for config. [Empty]",
+				3,
+				Color3.fromRGB(255, 0, 0)
+			)
 		end
 		if isfile(string.format("%s/%s.json", self.Folder, Name)) then
 			return self.Library["Notification"]("[SaveManager]: Config already exists.", 3, Color3.fromRGB(255, 0, 0))
@@ -85,62 +89,74 @@ do
 		local Config = {}
 
 		for Index, Toggle in next, self.Library.Flags["Toggle"] do
-			if self.Ignore[Index] then continue end
+			if self.Ignore[Index] then
+				continue
+			end
 
 			Config[Index] = {
 				Type = "Toggle",
-				Value = Toggle.Value
+				Value = Toggle.Value,
 			}
 		end
 
 		for Index, Slider in next, self.Library.Flags["Slider"] do
-			if self.Ignore[Index] then continue end
+			if self.Ignore[Index] then
+				continue
+			end
 
 			Config[Index] = {
 				Type = "Slider",
-				Value = Slider.Current
+				Value = Slider.Current,
 			}
 		end
 
 		for Index, Dropdown in next, self.Library.Flags["Dropdown"] do
-			if self.Ignore[Index] then continue end
+			if self.Ignore[Index] then
+				continue
+			end
 
 			Config[Index] = {
 				Type = "Dropdown",
-				Value = Dropdown.Current
+				Value = Dropdown.Current,
 			}
 		end
 
 		for Index, TextBox in next, self.Library.Flags["TextBox"] do
-			if self.Ignore[Index] then continue end
+			if self.Ignore[Index] then
+				continue
+			end
 
 			Config[Index] = {
 				Type = "TextBox",
-				Value = TextBox.Text
+				Value = TextBox.Text,
 			}
 		end
 
 		for Index, Keybind in next, self.Library.Flags["Keybind"] do
-			if self.Ignore[Index] then continue end
+			if self.Ignore[Index] then
+				continue
+			end
 
 			Config[Index] = {
 				Type = "Keybind",
 				Value = {
 					Input = Keybind.Input,
-					Mode = Keybind.Mode
-				}
+					Mode = Keybind.Mode,
+				},
 			}
 		end
 
 		for Index, Colorpicker in next, self.Library.Flags["Colorpicker"] do
-			if self.Ignore[Index] then continue end
+			if self.Ignore[Index] then
+				continue
+			end
 
 			Config[Index] = {
 				Type = "Colorpicker",
 				Value = {
 					Current = Colorpicker.Current,
-					Mode = Colorpicker.Mode
-				}
+					Mode = Colorpicker.Mode,
+				},
 			}
 		end
 
@@ -202,7 +218,9 @@ do
 			end)
 		end
 
-		return Button and self.Library["Notification"](string.format("[SaveManager]: Loaded Config %q", Name), 3, "Accent") or nil
+		return Button
+				and self.Library["Notification"](string.format("[SaveManager]: Loaded Config %q", Name), 3, "Accent")
+			or nil
 	end
 
 	function SaveManager:OverrideConfig(Name)
@@ -216,62 +234,74 @@ do
 		local Config = {}
 
 		for Index, Toggle in next, self.Library.Flags["Toggle"] do
-			if self.Ignore[Index] then continue end
+			if self.Ignore[Index] then
+				continue
+			end
 
 			Config[Index] = {
 				Type = "Toggle",
-				Value = Toggle.Value
+				Value = Toggle.Value,
 			}
 		end
 
 		for Index, Slider in next, self.Library.Flags["Slider"] do
-			if self.Ignore[Index] then continue end
+			if self.Ignore[Index] then
+				continue
+			end
 
 			Config[Index] = {
 				Type = "Slider",
-				Value = Slider.Current
+				Value = Slider.Current,
 			}
 		end
 
 		for Index, Dropdown in next, self.Library.Flags["Dropdown"] do
-			if self.Ignore[Index] then continue end
+			if self.Ignore[Index] then
+				continue
+			end
 
 			Config[Index] = {
 				Type = "Dropdown",
-				Value = Dropdown.Current
+				Value = Dropdown.Current,
 			}
 		end
 
 		for Index, TextBox in next, self.Library.Flags["TextBox"] do
-			if self.Ignore[Index] then continue end
+			if self.Ignore[Index] then
+				continue
+			end
 
 			Config[Index] = {
 				Type = "TextBox",
-				Value = TextBox.Text
+				Value = TextBox.Text,
 			}
 		end
 
 		for Index, Keybind in next, self.Library.Flags["Keybind"] do
-			if self.Ignore[Index] then continue end
+			if self.Ignore[Index] then
+				continue
+			end
 
 			Config[Index] = {
 				Type = "Keybind",
 				Value = {
 					Input = Keybind.Input,
-					Mode = Keybind.Mode
-				}
+					Mode = Keybind.Mode,
+				},
 			}
 		end
 
 		for Index, Colorpicker in next, self.Library.Flags["Colorpicker"] do
-			if self.Ignore[Index] then continue end
+			if self.Ignore[Index] then
+				continue
+			end
 
 			Config[Index] = {
 				Type = "Colorpicker",
 				Value = {
 					Current = Colorpicker.Current,
-					Mode = Colorpicker.Mode
-				}
+					Mode = Colorpicker.Mode,
+				},
 			}
 		end
 
@@ -311,7 +341,11 @@ do
 
 	function SaveManager:RemoveDefault()
 		if not isfile(string.format("%s/Default.txt", self.Folder)) then
-			return self.Library["Notification"]("[SaveManager]: There is no default config.", 3, Color3.fromRGB(255, 0, 0))
+			return self.Library["Notification"](
+				"[SaveManager]: There is no default config.",
+				3,
+				Color3.fromRGB(255, 0, 0)
+			)
 		end
 
 		delfile(string.format("%s/Default.txt", self.Folder))
@@ -348,7 +382,7 @@ do
 		self:SetIgnoreIndexes({
 			"Accent",
 			"Background 1",
-			"Background 2", 
+			"Background 2",
 			"Background 3",
 			"Border 1",
 			"Border 2",
@@ -366,7 +400,7 @@ do
 			"ThemeManagerCustomThemeList",
 			"ThemeManagerCustomThemeName",
 			"SaveManagerConfigList",
-			"SaveManagerConfigName"
+			"SaveManagerConfigName",
 		})
 
 		local Config = Tab.Functions.Section({
@@ -396,9 +430,7 @@ do
 				Callback = function()
 					self:SaveConfig(self.Library.Flags["TextBox"]["SaveManagerConfigName"]["Text"])
 
-					self.Library.Flags["Dropdown"]["SaveManagerConfigList"]["Functions"]:Values(
-						self:GetConfigList()
-					)
+					self.Library.Flags["Dropdown"]["SaveManagerConfigList"]["Functions"]:Values(self:GetConfigList())
 					self.Library.Flags["Dropdown"]["SaveManagerConfigList"]["Functions"]:Set({})
 				end,
 			}).Functions
@@ -408,9 +440,7 @@ do
 				Callback = function()
 					self:DeleteConfig(self.Library.Flags["Dropdown"]["SaveManagerConfigList"]["Current"][1])
 
-					self.Library.Flags["Dropdown"]["SaveManagerConfigList"]["Functions"]:Values(
-						self:GetConfigList()
-					)
+					self.Library.Flags["Dropdown"]["SaveManagerConfigList"]["Functions"]:Values(self:GetConfigList())
 					self.Library.Flags["Dropdown"]["SaveManagerConfigList"]["Functions"]:Set({})
 				end,
 			})
@@ -457,5 +487,7 @@ do
 		})
 	end
 end
+
+getgenv().SaveManager = SaveManager
 
 return SaveManager
