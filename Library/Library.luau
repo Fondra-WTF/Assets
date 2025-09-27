@@ -1323,7 +1323,7 @@ do
 			if Input.KeyCode == Enum.KeyCode.Delete then
 				return
 			end
-			if Input.KeyCode == Keybind.Input or Input.UserInputType == Keybind.Input then
+			if Input.KeyCode == Keybind.Input then
 				if Keybind.Mode == "TOGGLE" then
 					local NEW = not Parent.Value
 					Parent.Functions:Set(NEW)
@@ -1339,7 +1339,7 @@ do
 			if Input.KeyCode == Enum.KeyCode.Delete then
 				return
 			end
-			if Input.KeyCode == Keybind.Input or Input.UserInputType == Keybind.Input then
+			if Input.KeyCode == Keybind.Input then
 				if Keybind.Mode == "HOLD" then
 					Parent.Functions:Set(false)
 					DisplayKeybind.Functions:SetTheme({ TextColor3 = "Inactive Text" })
