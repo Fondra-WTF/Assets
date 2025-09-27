@@ -177,22 +177,29 @@ do
 		for Index, Data in next, Config do
 			task.spawn(function()
 				if Data.Type == "Toggle" and self.Library.Flags["Toggle"][Index] then
-					self.Library.Flags["Toggle"][Index]["Functions"]["Set"](Data.Value)
+					local Object = self.Library.Flags["Toggle"][Index]
+					Object.Functions:Set(Data.Value)
 				elseif Data.Type == "Slider" and self.Library.Flags["Slider"][Index] then
-					self.Library.Flags["Slider"][Index]["Functions"]["Set"](Data.Value)
+					local Object = self.Library.Flags["Slider"][Index]
+					Object.Functions:Set(Data.Value)
 				elseif Data.Type == "Dropdown" and self.Library.Flags["Dropdown"][Index] then
-					self.Library.Flags["Dropdown"][Index]["Functions"]["Set"](Data.Value)
+					local Object = self.Library.Flags["Dropdown"][Index]
+					Object.Functions:Set(Data.Value)
 				elseif Data.Type == "TextBox" and self.Library.Flags["TextBox"][Index] then
-					self.Library.Flags["TextBox"][Index]["Functions"]["Set"](Data.Value)
+					local Object = self.Library.Flags["TextBox"][Index]
+					Object.Functions:Set(Data.Value)
 				elseif Data.Type == "Keybind" and self.Library.Flags["Keybind"][Index] then
-					self.Library.Flags["Keybind"][Index]["Functions"]["Set"](Data.Value.Input, Data.Value.Mode)
+					local Object = self.Library.Flags["Keybind"][Index]
+					Object.Functions:Set(Data.Value.Input, Data.Value.Mode)
 				elseif Data.Type == "Colorpicker" and self.Library.Flags["Colorpicker"][Index] then
+					local Object = self.Library.Flags["Colorpicker"][Index]
 					local Current = Data.Value.Current
 					local Color = Color3.fromHSV(Current[1], Current[2], Current[3])
 					local Alpha = Current[4]
 					local Mode = Data.Value.Mode
-					self.Library.Flags["Colorpicker"][Index]["Functions"]["Set"](Color, Alpha, Mode)
+					Object.Functions:Set(Color, Alpha, Mode)
 				end
+			end)
 			end)
 		end
 
@@ -390,10 +397,10 @@ do
 				Callback = function()
 					self:SaveConfig(self.Library.Flags["TextBox"]["SaveManagerConfigName"]["Text"])
 
-					self.Library.Flags["Dropdown"]["SaveManagerConfigList"]["Functions"]["Values"](
+					self.Library.Flags["Dropdown"]["SaveManagerConfigList"]["Functions"]:Values(
 						self:GetConfigList()
 					)
-					self.Library.Flags["Dropdown"]["SaveManagerConfigList"]["Functions"]["Set"]({})
+					self.Library.Flags["Dropdown"]["SaveManagerConfigList"]["Functions"]:Set({})
 				end,
 			}).Functions
 			:Button({
@@ -402,10 +409,10 @@ do
 				Callback = function()
 					self:DeleteConfig(self.Library.Flags["Dropdown"]["SaveManagerConfigList"]["Current"][1])
 
-					self.Library.Flags["Dropdown"]["SaveManagerConfigList"]["Functions"]["Values"](
+					self.Library.Flags["Dropdown"]["SaveManagerConfigList"]["Functions"]:Values(
 						self:GetConfigList()
 					)
-					self.Library.Flags["Dropdown"]["SaveManagerConfigList"]["Functions"]["Set"]({})
+					self.Library.Flags["Dropdown"]["SaveManagerConfigList"]["Functions"]:Set({})
 				end,
 			})
 
@@ -445,14 +452,11 @@ do
 			Text = "REFRESH LIST",
 			Result = "REFRESHED",
 			Callback = function()
-				self.Library.Flags["Dropdown"]["SaveManagerConfigList"]["Functions"]["Values"](self:GetConfigList())
-				self.Library.Flags["Dropdown"]["SaveManagerConfigList"]["Functions"]["Set"]({})
+				self.Library.Flags["Dropdown"]["SaveManagerConfigList"]["Functions"]:Values(self:GetConfigList())
+				self.Library.Flags["Dropdown"]["SaveManagerConfigList"]["Functions"]:Set({})
 			end,
 		})
 	end
 end
 
-getgenv().SaveManager = SaveManager
-
 return SaveManager
-
