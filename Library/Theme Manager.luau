@@ -188,8 +188,6 @@ do
 				Mode = Information[2]
 			end
 
-			print(Information)
-
 			self.Library.Flags["Colorpicker"][Index]["Functions"]:Set(Color, nil, Mode)
 		end
 
