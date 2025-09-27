@@ -1326,10 +1326,10 @@ do
 			if Input.KeyCode == Keybind.Input or Input.UserInputType == Keybind.Input then
 				if Keybind.Mode == "TOGGLE" then
 					local NEW = not Parent.Value
-					Parent["Functions"]["Set"](NEW)
+					Parent.Functions:Set(NEW)
 					DisplayKeybind.Functions:SetTheme({ TextColor3 = NEW and "Accent" or "Inactive Text" })
 				elseif Keybind.Mode == "HOLD" then
-					Parent["Functions"]["Set"](true)
+					Parent.Functions:Set(true)
 					DisplayKeybind.Functions:SetTheme({ TextColor3 = "Accent" })
 				end
 			end
@@ -1341,7 +1341,7 @@ do
 			end
 			if Input.KeyCode == Keybind.Input or Input.UserInputType == Keybind.Input then
 				if Keybind.Mode == "HOLD" then
-					Parent["Functions"]["Set"](false)
+					Parent.Functions:Set(false)
 					DisplayKeybind.Functions:SetTheme({ TextColor3 = "Inactive Text" })
 				end
 			end
