@@ -4032,48 +4032,4 @@ end
 
 getgenv().Library = Library
 
-do
-	local Window = Library.Menu({
-		Name = "FONDRA",
-		Size = UDim2.new(0, 600, 0, 700),
-	})
-
-	local Watermark = Library.Watermark({
-		Format = "FONDRA I ${MODE} I ${FPS} FPS I ${PING} MS I ${TIME} I ${DATE}",
-		Rate = 240,
-	})
-
-	local MainTab = Window.Functions.Tab({ Name = "Main" })
-
-	local TestSection = MainTab.Functions.Section({
-		Text = "Test",
-		Side = "LEFT",
-	})
-
-	TestSection.Functions:Button({})
-	TestSection.Functions:Toggle({})
-	TestSection.Functions:Slider({})
-	TestSection.Functions:Dropdown({})
-	TestSection.Functions:Divider({})
-	TestSection.Functions:Label({})
-
-	TestSection.Functions:TextBox({})
-
-	local SettingsTab = Window.Functions.Tab({ Name = "Settings" })
-	local PlayersTab = Window.Functions.Players({ Name = "Players" })
-
-	local SaveManager = getgenv().SaveManager
-	local ThemeManager = getgenv().ThemeManager
-
-	SaveManager:SetLibrary(Library)
-	ThemeManager:SetLibrary(Library)
-
-	SaveManager:SetFolder("Fondra/Games/BasePlate")
-	ThemeManager:SetFolder("Fondra/Themes")
-
-	SaveManager:BuildConfigSection(SettingsTab)
-	ThemeManager:BuildThemeSection(SettingsTab)
-
-	SaveManager:LoadAutoloadConfig()
-	ThemeManager:LoadAutoloadConfig()
-end
+return Library
