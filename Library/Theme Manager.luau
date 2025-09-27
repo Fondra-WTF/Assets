@@ -188,7 +188,7 @@ do
 				Mode = Information[2]
 			end
 
-			self.Library.Flags["Colorpicker"][Index]["Functions"]["Set"](Color, nil, Mode)
+			self.Library.Flags["Colorpicker"][Index]["Functions"]:Set(Color, nil, Mode)
 		end
 
 		self:ThemeUpdate()
@@ -462,10 +462,10 @@ do
 				Callback = function()
 					self:SaveCustomTheme(self.Library.Flags["TextBox"]["ThemeManagerCustomThemeName"]["Text"])
 
-					self.Library.Flags["Dropdown"]["ThemeManagerCustomThemeList"]["Functions"]["Values"](
+					self.Library.Flags["Dropdown"]["ThemeManagerCustomThemeList"]["Functions"]:Values(
 						self:ReloadCustomThemes()
 					)
-					self.Library.Flags["Dropdown"]["ThemeManagerCustomThemeList"]["Functions"]["Set"]({})
+					self.Library.Flags["Dropdown"]["ThemeManagerCustomThemeList"]["Functions"]:Set({})
 				end,
 			}).Functions
 			:Button({
@@ -474,10 +474,10 @@ do
 				Callback = function()
 					self:DeleteCustomTheme(self.Library.Flags["Dropdown"]["ThemeManagerCustomThemeList"]["Current"][1])
 
-					self.Library.Flags["Dropdown"]["ThemeManagerCustomThemeList"]["Functions"]["Values"](
+					self.Library.Flags["Dropdown"]["ThemeManagerCustomThemeList"]["Functions"]:Values(
 						self:ReloadCustomThemes()
 					)
-					self.Library.Flags["Dropdown"]["ThemeManagerCustomThemeList"]["Functions"]["Set"]({})
+					self.Library.Flags["Dropdown"]["ThemeManagerCustomThemeList"]["Functions"]:Set({})
 				end,
 			})
 
@@ -522,15 +522,13 @@ do
 			Text = "REFRESH LIST",
 			Result = "REFRESHED",
 			Callback = function()
-				self.Library.Flags["Dropdown"]["ThemeManagerCustomThemeList"]["Functions"]["Values"](
+				self.Library.Flags["Dropdown"]["ThemeManagerCustomThemeList"]["Functions"]:Values(
 					self:ReloadCustomThemes()
 				)
-				self.Library.Flags["Dropdown"]["ThemeManagerCustomThemeList"]["Functions"]["Set"]({})
+				self.Library.Flags["Dropdown"]["ThemeManagerCustomThemeList"]["Functions"]:Set({})
 			end,
 		})
 	end
 end
-
-getgenv().ThemeManager = ThemeManager
 
 return ThemeManager
