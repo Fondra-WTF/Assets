@@ -1,10 +1,9 @@
+-- SaveManager.lua
 local Game = game
 local Services = setmetatable({}, {
 	__index = function(Self, Service)
 		local Cache = Game.GetService(Game, Service)
-
 		rawset(Self, Service, Cache)
-
 		return Cache
 	end,
 })
@@ -76,19 +75,19 @@ do
 
 	function SaveManager:SaveConfig(Name)
 		if Name:gsub(" ", "") == "" then
-			return self.Library["Notification"](
+			return self.Library:Notification(
 				"[SaveManager]: Invalid file name for config. [Empty]",
 				3,
 				Color3.fromRGB(255, 0, 0)
 			)
 		end
 		if isfile(string.format("%s/%s.json", self.Folder, Name)) then
-			return self.Library["Notification"]("[SaveManager]: Config already exists.", 3, Color3.fromRGB(255, 0, 0))
+			return self.Library:Notification("[SaveManager]: Config already exists.", 3, Color3.fromRGB(255, 0, 0))
 		end
 
 		local Config = {}
 
-		for Index, Toggle in next, self.Library.Flags["Toggle"] do
+		for Index, Toggle in next, Toggles do
 			if self.Ignore[Index] then
 				continue
 			end
@@ -99,7 +98,7 @@ do
 			}
 		end
 
-		for Index, Slider in next, self.Library.Flags["Slider"] do
+		for Index, Slider in next, Sliders do
 			if self.Ignore[Index] then
 				continue
 			end
@@ -110,7 +109,7 @@ do
 			}
 		end
 
-		for Index, Dropdown in next, self.Library.Flags["Dropdown"] do
+		for Index, Dropdown in next, Dropdowns do
 			if self.Ignore[Index] then
 				continue
 			end
@@ -121,7 +120,7 @@ do
 			}
 		end
 
-		for Index, TextBox in next, self.Library.Flags["TextBox"] do
+		for Index, TextBox in next, TextBoxes do
 			if self.Ignore[Index] then
 				continue
 			end
@@ -132,21 +131,21 @@ do
 			}
 		end
 
-		for Index, Keybind in next, self.Library.Flags["Keybind"] do
+		for Index, Keypicker in next, Keypickers do
 			if self.Ignore[Index] then
 				continue
 			end
 
 			Config[Index] = {
-				Type = "Keybind",
+				Type = "Keypicker",
 				Value = {
-					Input = Keybind.Input,
-					Mode = Keybind.Mode,
+					Input = Keypicker.Input,
+					Mode = Keypicker.Mode,
 				},
 			}
 		end
 
-		for Index, Colorpicker in next, self.Library.Flags["Colorpicker"] do
+		for Index, Colorpicker in next, Colorpickers do
 			if self.Ignore[Index] then
 				continue
 			end
@@ -164,76 +163,69 @@ do
 		local Success, Encrypted = pcall(crypt.base64encode, Encoded)
 
 		if not Success then
-			return self.Library["Notification"]("[SaveManager]: Failed to encode config.", 3, Color3.fromRGB(255, 0, 0))
+			return self.Library:Notification("[SaveManager]: Failed to encode config.", 3, Color3.fromRGB(255, 0, 0))
 		end
 
 		writefile(string.format("%s/%s.json", self.Folder, Name), Encrypted)
 
-		return self.Library["Notification"](string.format("[SaveManager]: Saved Config %q", Name), 3, "Accent")
+		return self.Library:Notification(string.format("[SaveManager]: Saved Config %q", Name), 3, "Accent")
 	end
 
 	function SaveManager:LoadConfig(Name, Button)
 		if Name == nil or Name == "" then
-			return self.Library["Notification"]("[SaveManager]: Invalid Selection.", 3, Color3.fromRGB(255, 0, 0))
+			return self.Library:Notification("[SaveManager]: Invalid Selection.", 3, Color3.fromRGB(255, 0, 0))
 		end
 
 		local File = string.format("%s/%s.json", self.Folder, Name)
 
 		if not isfile(File) then
-			return self.Library["Notification"]("[SaveManager]: Config does not exist.", 3, Color3.fromRGB(255, 0, 0))
+			return self.Library:Notification("[SaveManager]: Config does not exist.", 3, Color3.fromRGB(255, 0, 0))
 		end
 
 		local Success, Decoded = pcall(crypt.base64decode, readfile(File))
 		local Success, Config = pcall(Services.HttpService.JSONDecode, Services.HttpService, Decoded)
 
 		if not Success then
-			return self.Library["Notification"]("[SaveManager]: Failed to decode config.", 3, Color3.fromRGB(255, 0, 0))
+			return self.Library:Notification("[SaveManager]: Failed to decode config.", 3, Color3.fromRGB(255, 0, 0))
 		end
 
 		for Index, Data in next, Config do
 			task.spawn(function()
-				if Data.Type == "Toggle" and self.Library.Flags["Toggle"][Index] then
-					local Object = self.Library.Flags["Toggle"][Index]
-					Object.Functions:Set(Data.Value)
-				elseif Data.Type == "Slider" and self.Library.Flags["Slider"][Index] then
-					local Object = self.Library.Flags["Slider"][Index]
-					Object.Functions:Set(Data.Value)
-				elseif Data.Type == "Dropdown" and self.Library.Flags["Dropdown"][Index] then
-					local Object = self.Library.Flags["Dropdown"][Index]
-					Object.Functions:Set(Data.Value)
-				elseif Data.Type == "TextBox" and self.Library.Flags["TextBox"][Index] then
-					local Object = self.Library.Flags["TextBox"][Index]
-					Object.Functions:Set(Data.Value)
-				elseif Data.Type == "Keybind" and self.Library.Flags["Keybind"][Index] then
-					local Object = self.Library.Flags["Keybind"][Index]
-					Object.Functions:Set(Data.Value.Input, Data.Value.Mode)
-				elseif Data.Type == "Colorpicker" and self.Library.Flags["Colorpicker"][Index] then
-					local Object = self.Library.Flags["Colorpicker"][Index]
+				if Data.Type == "Toggle" and Toggles[Index] then
+					Toggles[Index]:Set(Data.Value)
+				elseif Data.Type == "Slider" and Sliders[Index] then
+					Sliders[Index]:Set(Data.Value)
+				elseif Data.Type == "Dropdown" and Dropdowns[Index] then
+					Dropdowns[Index]:Set(Data.Value)
+				elseif Data.Type == "TextBox" and TextBoxes[Index] then
+					TextBoxes[Index]:Set(Data.Value)
+				elseif Data.Type == "Keypicker" and Keypickers[Index] then
+					Keypickers[Index]:Set(Data.Value.Input, Data.Value.Mode)
+				elseif Data.Type == "Colorpicker" and Colorpickers[Index] then
 					local Current = Data.Value.Current
 					local Color = Color3.fromHSV(Current[1], Current[2], Current[3])
 					local Alpha = Current[4]
 					local Mode = Data.Value.Mode
-					Object.Functions:Set(Color, Alpha, Mode)
+					Colorpickers[Index]:Set(Color, Alpha, Mode)
 				end
 			end)
 		end
 
-		return Button
-				and self.Library["Notification"](string.format("[SaveManager]: Loaded Config %q", Name), 3, "Accent")
+		return Button and self.Library:Notification(string.format("[SaveManager]: Loaded Config %q", Name), 3, "Accent")
 			or nil
 	end
 
 	function SaveManager:OverrideConfig(Name)
 		if Name == nil or Name == "" then
-			return self.Library["Notification"]("[SaveManager]: Invalid Selection.", 3, Color3.fromRGB(255, 0, 0))
+			return self.Library:Notification("[SaveManager]: Invalid Selection.", 3, Color3.fromRGB(255, 0, 0))
 		end
 		if not isfile(string.format("%s/%s.json", self.Folder, Name)) then
-			return self.Library["Notification"]("[SaveManager]: Config does not exist.", 3, Color3.fromRGB(255, 0, 0))
+			return self.Library:Notification("[SaveManager]: Config does not exist.", 3, Color3.fromRGB(255, 0, 0))
 		end
 
 		local Config = {}
 
-		for Index, Toggle in next, self.Library.Flags["Toggle"] do
+		for Index, Toggle in next, Toggles do
 			if self.Ignore[Index] then
 				continue
 			end
@@ -244,7 +236,7 @@ do
 			}
 		end
 
-		for Index, Slider in next, self.Library.Flags["Slider"] do
+		for Index, Slider in next, Sliders do
 			if self.Ignore[Index] then
 				continue
 			end
@@ -255,7 +247,7 @@ do
 			}
 		end
 
-		for Index, Dropdown in next, self.Library.Flags["Dropdown"] do
+		for Index, Dropdown in next, Dropdowns do
 			if self.Ignore[Index] then
 				continue
 			end
@@ -266,7 +258,7 @@ do
 			}
 		end
 
-		for Index, TextBox in next, self.Library.Flags["TextBox"] do
+		for Index, TextBox in next, TextBoxes do
 			if self.Ignore[Index] then
 				continue
 			end
@@ -277,21 +269,21 @@ do
 			}
 		end
 
-		for Index, Keybind in next, self.Library.Flags["Keybind"] do
+		for Index, Keypicker in next, Keypickers do
 			if self.Ignore[Index] then
 				continue
 			end
 
 			Config[Index] = {
-				Type = "Keybind",
+				Type = "Keypicker",
 				Value = {
-					Input = Keybind.Input,
-					Mode = Keybind.Mode,
+					Input = Keypicker.Input,
+					Mode = Keypicker.Mode,
 				},
 			}
 		end
 
-		for Index, Colorpicker in next, self.Library.Flags["Colorpicker"] do
+		for Index, Colorpicker in next, Colorpickers do
 			if self.Ignore[Index] then
 				continue
 			end
@@ -309,39 +301,39 @@ do
 		local Success, Encrypted = pcall(crypt.base64encode, Encoded)
 
 		if not Success then
-			return self.Library["Notification"]("[SaveManager]: Failed to encode config.", 3, Color3.fromRGB(255, 0, 0))
+			return self.Library:Notification("[SaveManager]: Failed to encode config.", 3, Color3.fromRGB(255, 0, 0))
 		end
 
 		writefile(string.format("%s/%s.json", self.Folder, Name), Encrypted)
 
-		return self.Library["Notification"](string.format("[SaveManager]: Overrided config %q", Name), 3, "Accent")
+		return self.Library:Notification(string.format("[SaveManager]: Overrided config %q", Name), 3, "Accent")
 	end
 
 	function SaveManager:DeleteConfig(Name)
 		if Name == nil or Name == "" then
-			return self.Library["Notification"]("[SaveManager]: Invalid Selection.", 3, Color3.fromRGB(255, 0, 0))
+			return self.Library:Notification("[SaveManager]: Invalid Selection.", 3, Color3.fromRGB(255, 0, 0))
 		end
 		if not isfile(string.format("%s/%s.json", self.Folder, Name)) then
-			return self.Library["Notification"]("[SaveManager]: Config does not exist.", 3, Color3.fromRGB(255, 0, 0))
+			return self.Library:Notification("[SaveManager]: Config does not exist.", 3, Color3.fromRGB(255, 0, 0))
 		end
 
 		delfile(string.format("%s/%s.json", self.Folder, Name))
 
-		return self.Library["Notification"](string.format("[SaveManager]: Deleted Config %q", Name), 3, "Accent")
+		return self.Library:Notification(string.format("[SaveManager]: Deleted Config %q", Name), 3, "Accent")
 	end
 
 	function SaveManager:SaveDefault(Name)
 		if Name == nil or Name == "" then
-			return self.Library["Notification"]("[SaveManager]: Invalid Selection.", 3, Color3.fromRGB(255, 0, 0))
+			return self.Library:Notification("[SaveManager]: Invalid Selection.", 3, Color3.fromRGB(255, 0, 0))
 		end
 
 		writefile(string.format("%s/Default.txt", self.Folder), Name)
-		self.Library["Notification"](string.format("[SaveManager]: Set default config to %q", Name), 3, "Accent")
+		self.Library:Notification(string.format("[SaveManager]: Set default config to %q", Name), 3, "Accent")
 	end
 
 	function SaveManager:RemoveDefault()
 		if not isfile(string.format("%s/Default.txt", self.Folder)) then
-			return self.Library["Notification"](
+			return self.Library:Notification(
 				"[SaveManager]: There is no default config.",
 				3,
 				Color3.fromRGB(255, 0, 0)
@@ -349,7 +341,7 @@ do
 		end
 
 		delfile(string.format("%s/Default.txt", self.Folder))
-		self.Library["Notification"]("[SaveManager]: Removed the default config.", 3, "Accent")
+		self.Library:Notification("[SaveManager]: Removed the default config.", 3, "Accent")
 	end
 
 	function SaveManager:LoadDefault()
@@ -367,8 +359,8 @@ do
 
 			if ConfigExists then
 				self:LoadConfig(Content, false)
-				if self.Library.Flags["Dropdown"]["SaveManagerConfigList"] then
-					self.Library.Flags["Dropdown"]["SaveManagerConfigList"]["Functions"]:Set({ Content })
+				if Dropdowns["SaveManagerConfigList"] then
+					Dropdowns["SaveManagerConfigList"]:Set({ Content })
 				end
 			end
 		end
@@ -403,18 +395,18 @@ do
 			"SaveManagerConfigName",
 		})
 
-		local Config = Tab.Functions.Section({
-			Text = "Config",
+		local Config = Tab:Section({
+			Title = "Config",
 			Side = "RIGHT",
 		})
 
-		Config.Functions:TextBox({
+		Config:TextBox({
 			Text = "",
 			Placeholder = "Config Name",
 			Flag = "SaveManagerConfigName",
 		})
 
-		Config.Functions:Dropdown({
+		Config:Dropdown({
 			Text = "Config List",
 			Flag = "SaveManagerConfigList",
 			Options = self:GetConfigList(),
@@ -423,66 +415,58 @@ do
 			Maximum = 1,
 		})
 
-		Config.Functions
-			:Button({
-				Text = "CREATE",
-				Result = "CREATED",
-				Callback = function()
-					self:SaveConfig(self.Library.Flags["TextBox"]["SaveManagerConfigName"]["Text"])
+		Config:Button({
+			Text = "CREATE",
+			Result = "CREATED",
+			Callback = function()
+				self:SaveConfig(TextBoxes["SaveManagerConfigName"].Text)
+				Dropdowns["SaveManagerConfigList"]:Values(self:GetConfigList())
+				Dropdowns["SaveManagerConfigList"]:Set({})
+			end,
+		}):Button({
+			Text = "DELETE",
+			Result = "DELETED",
+			Callback = function()
+				self:DeleteConfig(Dropdowns["SaveManagerConfigList"].Current[1])
+				Dropdowns["SaveManagerConfigList"]:Values(self:GetConfigList())
+				Dropdowns["SaveManagerConfigList"]:Set({})
+			end,
+		})
 
-					self.Library.Flags["Dropdown"]["SaveManagerConfigList"]["Functions"]:Values(self:GetConfigList())
-					self.Library.Flags["Dropdown"]["SaveManagerConfigList"]["Functions"]:Set({})
-				end,
-			}).Functions
-			:Button({
-				Text = "DELETE",
-				Result = "DELETED",
-				Callback = function()
-					self:DeleteConfig(self.Library.Flags["Dropdown"]["SaveManagerConfigList"]["Current"][1])
+		Config:Button({
+			Text = "LOAD",
+			Result = "LOADED",
+			Callback = function()
+				self:LoadConfig(Dropdowns["SaveManagerConfigList"].Current[1], true)
+			end,
+		}):Button({
+			Text = "OVERWRITE",
+			Result = "OVERWRITED",
+			Callback = function()
+				self:OverrideConfig(Dropdowns["SaveManagerConfigList"].Current[1])
+			end,
+		})
 
-					self.Library.Flags["Dropdown"]["SaveManagerConfigList"]["Functions"]:Values(self:GetConfigList())
-					self.Library.Flags["Dropdown"]["SaveManagerConfigList"]["Functions"]:Set({})
-				end,
-			})
+		Config:Button({
+			Text = "SAVE DEFAULT",
+			Result = "DONE",
+			Callback = function()
+				self:SaveDefault(Dropdowns["SaveManagerConfigList"].Current[1])
+			end,
+		}):Button({
+			Text = "REMOVE DEFAULT",
+			Result = "DONE",
+			Callback = function()
+				self:RemoveDefault()
+			end,
+		})
 
-		Config.Functions
-			:Button({
-				Text = "LOAD",
-				Result = "LOADED",
-				Callback = function()
-					self:LoadConfig(self.Library.Flags["Dropdown"]["SaveManagerConfigList"]["Current"][1], true)
-				end,
-			}).Functions
-			:Button({
-				Text = "OVERWRITE",
-				Result = "OVERWRITED",
-				Callback = function()
-					self:OverrideConfig(self.Library.Flags["Dropdown"]["SaveManagerConfigList"]["Current"][1])
-				end,
-			})
-
-		Config.Functions
-			:Button({
-				Text = "SAVE DEFAULT",
-				Result = "DONE",
-				Callback = function()
-					self:SaveDefault(self.Library.Flags["Dropdown"]["SaveManagerConfigList"]["Current"][1])
-				end,
-			}).Functions
-			:Button({
-				Text = "REMOVE DEFAULT",
-				Result = "DONE",
-				Callback = function()
-					self:RemoveDefault()
-				end,
-			})
-
-		Config.Functions:Button({
+		Config:Button({
 			Text = "REFRESH LIST",
 			Result = "REFRESHED",
 			Callback = function()
-				self.Library.Flags["Dropdown"]["SaveManagerConfigList"]["Functions"]:Values(self:GetConfigList())
-				self.Library.Flags["Dropdown"]["SaveManagerConfigList"]["Functions"]:Set({})
+				Dropdowns["SaveManagerConfigList"]:Values(self:GetConfigList())
+				Dropdowns["SaveManagerConfigList"]:Set({})
 			end,
 		})
 	end
