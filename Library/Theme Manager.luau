@@ -173,15 +173,9 @@ do
 		local CustomThemeData = self:GetCustomTheme(Theme)
 		local Data = CustomThemeData or self.Presets[Theme][2]
 
-		print(CustomThemeData, "CUSTOMTHEME")
-		print(Data, "BUILTIN")
-
 		if not Data then
 			return self.Library:Notification("[ThemeManager]: Theme does not exist.", 3, Color3.fromRGB(255, 0, 0))
 		end
-
-		table.foreach(getgenv().Colorpickers, print)
-		print("SOGM,A")
 
 		for Index, Information in next, Data do
 			local Color = Information
