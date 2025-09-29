@@ -1,10 +1,9 @@
+-- ThemeManager.lua
 local Game = game
 local Services = setmetatable({}, {
 	__index = function(Self, Service)
 		local Cache = Game.GetService(Game, Service)
-
 		rawset(Self, Service, Cache)
-
 		return Cache
 	end,
 })
@@ -168,15 +167,21 @@ do
 
 	function ThemeManager:ApplyTheme(Theme, Button)
 		if Theme == nil or Theme == "" then
-			return self.Library["Notification"]("[ThemeManager]: Invalid Selection.", 3, Color3.fromRGB(255, 0, 0))
+			return self.Library:Notification("[ThemeManager]: Invalid Selection.", 3, Color3.fromRGB(255, 0, 0))
 		end
 
 		local CustomThemeData = self:GetCustomTheme(Theme)
 		local Data = CustomThemeData or self.Presets[Theme][2]
 
+		print(CustomThemeData, "CUSTOMTHEME")
+		print(Data, "BUILTIN")
+
 		if not Data then
-			return self.Library["Notification"]("[ThemeManager]: Theme does not exist.", 3, Color3.fromRGB(255, 0, 0))
+			return self.Library:Notification("[ThemeManager]: Theme does not exist.", 3, Color3.fromRGB(255, 0, 0))
 		end
+
+		table.foreach(getgenv().Colorpickers, print)
+		print("SOGM,A")
 
 		for Index, Information in next, Data do
 			local Color = Information
@@ -188,24 +193,26 @@ do
 				Mode = Information[2]
 			end
 
-			self.Library.Flags["Colorpicker"][Index]["Functions"]:Set(Color, nil, Mode)
+			if Colorpickers[Index] then
+				Colorpickers[Index]:Set(Color, nil, Mode)
+			end
 		end
 
 		self:ThemeUpdate()
 
 		return Button
-				and self.Library["Notification"](string.format("[ThemeManager]: Loaded Theme %q", Theme), 3, "Accent")
+				and self.Library:Notification(string.format("[ThemeManager]: Loaded Theme %q", Theme), 3, "Accent")
 			or nil
 	end
 
 	function ThemeManager:ThemeUpdate()
 		for Index, Field in next, Indexes do
-			if not self.Library.Flags or not self.Library.Flags["Colorpicker"][Field] then
+			if not Colorpickers[Field] then
 				continue
 			end
 
 			do
-				local Data = self.Library.Flags["Colorpicker"][Field]["Current"]
+				local Data = Colorpickers[Field].Current
 				self.Library.Theme[Field] = Color3.fromHSV(Data[1], Data[2], Data[3])
 			end
 		end
@@ -230,11 +237,11 @@ do
 			Theme = "Fondra"
 		end
 
-		if self.Library.Flags["Dropdown"]["ThemeManagerCustomThemeList"] then
+		if Dropdowns["ThemeManagerCustomThemeList"] then
 			if not Presets then
-				self.Library.Flags["Dropdown"]["ThemeManagerCustomThemeList"]["Functions"]:Set({ Theme })
+				Dropdowns["ThemeManagerCustomThemeList"]:Set({ Theme })
 			else
-				self.Library.Flags["Dropdown"]["ThemeManagerBuiltList"]["Functions"]:Set({ Theme })
+				Dropdowns["ThemeManagerBuiltList"]:Set({ Theme })
 			end
 		end
 	end
@@ -245,24 +252,20 @@ do
 
 	function ThemeManager:SaveDefault(Theme)
 		if Theme == nil or Theme == "" then
-			return self.Library["Notification"]("[ThemeManager]: Invalid Selection.", 3, Color3.fromRGB(255, 0, 0))
+			return self.Library:Notification("[ThemeManager]: Invalid Selection.", 3, Color3.fromRGB(255, 0, 0))
 		end
 
 		writefile(string.format("%s/Default.txt", self.Folder), Theme)
-		self.Library["Notification"](string.format("[ThemeManager]: Set default theme to %q", Theme), 3, "Accent")
+		self.Library:Notification(string.format("[ThemeManager]: Set default theme to %q", Theme), 3, "Accent")
 	end
 
 	function ThemeManager:RemoveDefault()
 		if not isfile(string.format("%s/Default.txt", self.Folder)) then
-			return self.Library["Notification"](
-				"[ThemeManager]: There is no default theme.",
-				3,
-				Color3.fromRGB(255, 0, 0)
-			)
+			return self.Library:Notification("[ThemeManager]: There is no default theme.", 3, Color3.fromRGB(255, 0, 0))
 		end
 
 		delfile(string.format("%s/Default.txt", self.Folder))
-		self.Library["Notification"]("[ThemeManager]: Removed the default theme.", 3, "Accent")
+		self.Library:Notification("[ThemeManager]: Removed the default theme.", 3, "Accent")
 	end
 
 	function ThemeManager:GetCustomTheme(Name)
@@ -285,15 +288,15 @@ do
 
 	function ThemeManager:OverrideCustomTheme(Name)
 		if Name == nil or Name == "" then
-			return self.Library["Notification"]("[ThemeManager]: Invalid Selection.", 3, Color3.fromRGB(255, 0, 0))
+			return self.Library:Notification("[ThemeManager]: Invalid Selection.", 3, Color3.fromRGB(255, 0, 0))
 		end
 		if not isfile(string.format("%s/%s.json", self.Folder, Name)) then
-			return self.Library["Notification"]("[ThemeManager]: Theme does not exist", 3, Color3.fromRGB(255, 0, 0))
+			return self.Library:Notification("[ThemeManager]: Theme does not exist", 3, Color3.fromRGB(255, 0, 0))
 		end
 
 		local Theme = {}
 		for _, Field in next, Indexes do
-			local Data = self.Library.Flags["Colorpicker"][Field]["Functions"]["Get"]()
+			local Data = Colorpickers[Field]:Get()
 			Theme[Field] = { Data.Current, Data.Mode }
 		end
 
@@ -302,24 +305,24 @@ do
 
 		writefile(string.format("%s/%s.json", self.Folder, Name), Encrypted)
 
-		return self.Library["Notification"](string.format("[ThemeManager]: Overrided theme %q", Name), 3, "Accent")
+		return self.Library:Notification(string.format("[ThemeManager]: Overrided theme %q", Name), 3, "Accent")
 	end
 
 	function ThemeManager:SaveCustomTheme(Name)
 		if Name:gsub(" ", "") == "" then
-			return self.Library["Notification"](
+			return self.Library:Notification(
 				"[ThemeManager]: Invalid file name for theme. [Empty]",
 				3,
 				Color3.fromRGB(255, 0, 0)
 			)
 		end
 		if isfile(string.format("%s/%s.json", self.Folder, Name)) then
-			return self.Library["Notification"]("[ThemeManager]: Theme already exists.", 3, Color3.fromRGB(255, 0, 0))
+			return self.Library:Notification("[ThemeManager]: Theme already exists.", 3, Color3.fromRGB(255, 0, 0))
 		end
 
 		local Theme = {}
 		for _, Field in next, Indexes do
-			local Data = self.Library.Flags["Colorpicker"][Field]["Functions"]["Get"]()
+			local Data = Colorpickers[Field]:Get()
 			Theme[Field] = { Data.Current, Data.Mode }
 		end
 
@@ -328,15 +331,15 @@ do
 
 		writefile(string.format("%s/%s.json", self.Folder, Name), Encrypted)
 
-		return self.Library["Notification"](string.format("[ThemeManager]: Saved Theme %q", Name), 3, "Accent")
+		return self.Library:Notification(string.format("[ThemeManager]: Saved Theme %q", Name), 3, "Accent")
 	end
 
 	function ThemeManager:DeleteCustomTheme(Name)
 		if Name == nil or Name == "" then
-			return self.Library["Notification"]("[ThemeManager]: Invalid Selection.", 3, Color3.fromRGB(255, 0, 0))
+			return self.Library:Notification("[ThemeManager]: Invalid Selection.", 3, Color3.fromRGB(255, 0, 0))
 		end
 		if not isfile(string.format("%s/%s.json", self.Folder, Name)) then
-			return self.Library["Notification"](
+			return self.Library:Notification(
 				"[ThemeManager]: Invalid file. [Does not exist]",
 				3,
 				Color3.fromRGB(255, 0, 0)
@@ -345,7 +348,7 @@ do
 
 		delfile(string.format("%s/%s.json", self.Folder, Name))
 
-		return self.Library["Notification"](string.format("[ThemeManager]: Deleted Theme %q", Name), 3, "Accent")
+		return self.Library:Notification(string.format("[ThemeManager]: Deleted Theme %q", Name), 3, "Accent")
 	end
 
 	function ThemeManager:ReloadCustomThemes()
@@ -404,9 +407,9 @@ do
 	function ThemeManager:BuildThemeSection(Tab)
 		assert(self.Library, "Must set ThemeManager.Library first!")
 
-		local Themes = Tab.Functions.Section({ Text = "Themes", Side = "LEFT" })
+		local Themes = Tab:Section({ Title = "Themes", Side = "LEFT" })
 		for _, Name in next, Indexes do
-			Themes.Functions:Label({ Text = Name }).Functions:Colorpicker({
+			Themes:Label({ Text = Name }):Colorpicker({
 				Color = self.Library.Theme[Name],
 				Flag = Name,
 				Callback = function()
@@ -425,7 +428,7 @@ do
 			return self.Presets[A][1] < self.Presets[B][1]
 		end)
 
-		Themes.Functions:Dropdown({
+		Themes:Dropdown({
 			Text = "Built In Themes",
 			Flag = "ThemeManagerBuiltList",
 			Options = ThemesArray,
@@ -438,7 +441,7 @@ do
 			end,
 		})
 
-		Themes.Functions:Dropdown({
+		Themes:Dropdown({
 			Text = "Custom Themes List",
 			Flag = "ThemeManagerCustomThemeList",
 
@@ -449,83 +452,68 @@ do
 			Maximum = 1,
 		})
 
-		Themes.Functions:TextBox({
+		Themes:TextBox({
 			Text = "",
 			Placeholder = "Custom Theme Name",
 			Flag = "ThemeManagerCustomThemeName",
 		})
 
-		Themes.Functions
-			:Button({
-				Text = "CREATE",
-				Result = "CREATED",
-				Callback = function()
-					self:SaveCustomTheme(self.Library.Flags["TextBox"]["ThemeManagerCustomThemeName"]["Text"])
+		Themes:Button({
+			Text = "CREATE",
+			Result = "CREATED",
+			Callback = function()
+				self:SaveCustomTheme(TextBoxes["ThemeManagerCustomThemeName"].Text)
 
-					self.Library.Flags["Dropdown"]["ThemeManagerCustomThemeList"]["Functions"]:Values(
-						self:ReloadCustomThemes()
-					)
-					self.Library.Flags["Dropdown"]["ThemeManagerCustomThemeList"]["Functions"]:Set({})
-				end,
-			}).Functions
-			:Button({
-				Text = "DELETE",
-				Result = "DELETED",
-				Callback = function()
-					self:DeleteCustomTheme(self.Library.Flags["Dropdown"]["ThemeManagerCustomThemeList"]["Current"][1])
+				Dropdowns["ThemeManagerCustomThemeList"]:Values(self:ReloadCustomThemes())
+				Dropdowns["ThemeManagerCustomThemeList"]:Set({})
+			end,
+		}):Button({
+			Text = "DELETE",
+			Result = "DELETED",
+			Callback = function()
+				self:DeleteCustomTheme(Dropdowns["ThemeManagerCustomThemeList"].Current[1])
 
-					self.Library.Flags["Dropdown"]["ThemeManagerCustomThemeList"]["Functions"]:Values(
-						self:ReloadCustomThemes()
-					)
-					self.Library.Flags["Dropdown"]["ThemeManagerCustomThemeList"]["Functions"]:Set({})
-				end,
-			})
+				Dropdowns["ThemeManagerCustomThemeList"]:Values(self:ReloadCustomThemes())
+				Dropdowns["ThemeManagerCustomThemeList"]:Set({})
+			end,
+		})
 
-		Themes.Functions
-			:Button({
-				Text = "LOAD",
-				Result = "LOADED",
-				Callback = function()
-					self:ApplyTheme(self.Library.Flags["Dropdown"]["ThemeManagerCustomThemeList"]["Current"][1], true)
-				end,
-			}).Functions
-			:Button({
-				Text = "OVERWRITE",
-				Result = "OVERWRITED",
-				Callback = function()
-					self:OverrideCustomTheme(
-						self.Library.Flags["Dropdown"]["ThemeManagerCustomThemeList"]["Current"][1]
-					)
-				end,
-			})
+		Themes:Button({
+			Text = "LOAD",
+			Result = "LOADED",
+			Callback = function()
+				self:ApplyTheme(Dropdowns["ThemeManagerCustomThemeList"].Current[1], true)
+			end,
+		}):Button({
+			Text = "OVERWRITE",
+			Result = "OVERWRITED",
+			Callback = function()
+				self:OverrideCustomTheme(Dropdowns["ThemeManagerCustomThemeList"].Current[1])
+			end,
+		})
 
-		Themes.Functions
-			:Button({
-				Text = "SAVE DEFAULT",
-				Result = "DONE",
-				Callback = function()
-					self:SaveDefault(
-						self.Library.Flags["Dropdown"]["ThemeManagerCustomThemeList"]["Current"][1]
-							or self.Library.Flags["Dropdown"]["ThemeManagerBuiltList"]["Current"][1]
-					)
-				end,
-			}).Functions
-			:Button({
-				Text = "REMOVE DEFAULT",
-				Result = "DONE",
-				Callback = function()
-					self:RemoveDefault()
-				end,
-			})
+		Themes:Button({
+			Text = "SAVE DEFAULT",
+			Result = "DONE",
+			Callback = function()
+				self:SaveDefault(
+					Dropdowns["ThemeManagerCustomThemeList"].Current[1] or Dropdowns["ThemeManagerBuiltList"].Current[1]
+				)
+			end,
+		}):Button({
+			Text = "REMOVE DEFAULT",
+			Result = "DONE",
+			Callback = function()
+				self:RemoveDefault()
+			end,
+		})
 
-		Themes.Functions:Button({
+		Themes:Button({
 			Text = "REFRESH LIST",
 			Result = "REFRESHED",
 			Callback = function()
-				self.Library.Flags["Dropdown"]["ThemeManagerCustomThemeList"]["Functions"]:Values(
-					self:ReloadCustomThemes()
-				)
-				self.Library.Flags["Dropdown"]["ThemeManagerCustomThemeList"]["Functions"]:Set({})
+				Dropdowns["ThemeManagerCustomThemeList"]:Values(self:ReloadCustomThemes())
+				Dropdowns["ThemeManagerCustomThemeList"]:Set({})
 			end,
 		})
 	end
