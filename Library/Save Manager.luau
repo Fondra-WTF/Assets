@@ -150,11 +150,15 @@ do
 				continue
 			end
 
+			local Data = Colorpicker:Get()
+			local R, G, B = Data.Color.R, Data.Color.G, Data.Color.B
+
 			Config[Index] = {
 				Type = "Colorpicker",
 				Value = {
-					Current = Colorpicker.Current,
-					Mode = Colorpicker.Mode,
+					Color = { R, G, B },
+					Alpha = Data.Alpha,
+					Mode = Data.Mode,
 				},
 			}
 		end
@@ -202,9 +206,9 @@ do
 				elseif Data.Type == "Keypicker" and Keypickers[Index] then
 					Keypickers[Index]:Set(Data.Value.Input, Data.Value.Mode)
 				elseif Data.Type == "Colorpicker" and Colorpickers[Index] then
-					local Current = Data.Value.Current
-					local Color = Color3.fromHSV(Current[1], Current[2], Current[3])
-					local Alpha = Current[4]
+					local Current = Data.Value.Color
+					local Color = Color3.new(Current[1], Current[2], Current[3])
+					local Alpha = Data.Value.Alpha
 					local Mode = Data.Value.Mode
 					Colorpickers[Index]:Set(Color, Alpha, Mode)
 				end
@@ -288,11 +292,15 @@ do
 				continue
 			end
 
+			local Data = Colorpicker:Get()
+			local R, G, B = Data.Color.R, Data.Color.G, Data.Color.B
+
 			Config[Index] = {
 				Type = "Colorpicker",
 				Value = {
-					Current = Colorpicker.Current,
-					Mode = Colorpicker.Mode,
+					Color = { R, G, B },
+					Alpha = Data.Alpha,
+					Mode = Data.Mode,
 				},
 			}
 		end
@@ -333,11 +341,7 @@ do
 
 	function SaveManager:RemoveDefault()
 		if not isfile(string.format("%s/Default.txt", self.Folder)) then
-			return self.Library:Notification(
-				"[SaveManager]: There is no default config.",
-				3,
-				Color3.fromRGB(255, 0, 0)
-			)
+			return self.Library:Notification("[SaveManager]: There is no default config.", 3, Color3.fromRGB(255, 0, 0))
 		end
 
 		delfile(string.format("%s/Default.txt", self.Folder))
