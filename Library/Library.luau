@@ -394,7 +394,6 @@ do
 		)
 
 		local Addons = {}
-
 		function RefreshAddons()
 			local Offset = 0
 			for Index, Addon in next, Addons do
@@ -1078,7 +1077,6 @@ do
 		}
 
 		local Label = {}
-
 		local LabelTextLabel = Functions["Create"]("TextLabel", {
 			Parent = Holder,
 			Text = Options.Text,
@@ -1395,7 +1393,7 @@ do
 	Functions["AddConnection"](nil, RunService.Heartbeat, function()
 		for Colorpicker, Mode in next, Pickers do
 			if Mode == "RAINBOW" then
-				Colorpicker:Set(Color3.fromHSV((tick() % 5) / 5, 1, 1), Colorpicker.Current[4])
+				Colorpicker:Set(Color3.fromHSV((tick() % 5) / 5, 1, 1), Colorpicker.Alpha)
 			end
 		end
 	end)
@@ -1722,7 +1720,7 @@ do
 			ColorpickerFill.BackgroundColor3 = Colorpicker.Color
 
 			if Colorpicker.Alpha ~= nil then
-				ColorpickerFill.BackgroundTransparency = 1 - Colorpicker.Alpha
+				ColorpickerFill.BackgroundTransparency = Colorpicker.Alpha
 				if Colorpicker.Objects.AlphaCursor and Colorpicker.Objects.AlphaInline then
 					Colorpicker.Objects.AlphaCursor.Position =
 						UDim2.new(0, 2, 0, (1 - Colorpicker.Alpha) * Colorpicker.Objects.AlphaInline.AbsoluteSize.Y)
