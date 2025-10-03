@@ -187,7 +187,7 @@ do
 				Mode = Information[2]
 			end
 
-			self.Library.Flags["Colorpicker"][Index]["Functions"]:Set(Color, nil, Mode)
+			Colorpickers[Index]:Set(Color, nil, Mode)
 		end
 
 		self:ThemeUpdate()
@@ -199,12 +199,12 @@ do
 
 	function ThemeManager:ThemeUpdate()
 		for Index, Field in next, Indexes do
-			if not self.Library.Flags or not self.Library.Flags["Colorpicker"][Field] then
+			if not Colorpickers or not Colorpickers[Field] then
 				continue
 			end
 
 			do
-				local Data = self.Library.Flags["Colorpicker"][Field]["Functions"]:Get()
+				local Data = Colorpickers[Field]:Get()
 				self.Library.Theme[Field] = Data.Color
 			end
 		end
@@ -229,11 +229,11 @@ do
 			Theme = "Fondra"
 		end
 
-		if self.Library.Flags["Dropdown"]["ThemeManagerCustomThemeList"] then
+		if Dropdowns["ThemeManagerCustomThemeList"] then
 			if not Presets then
-				self.Library.Flags["Dropdown"]["ThemeManagerCustomThemeList"]["Functions"]:Set({ Theme })
+				Dropdowns["ThemeManagerCustomThemeList"]:Set({ Theme })
 			else
-				self.Library.Flags["Dropdown"]["ThemeManagerBuiltList"]["Functions"]:Set({ Theme })
+				Dropdowns["ThemeManagerBuiltList"]:Set({ Theme })
 			end
 		end
 	end
@@ -292,7 +292,7 @@ do
 
 		local Theme = {}
 		for _, Field in next, Indexes do
-			local Data = self.Library.Flags["Colorpicker"][Field]["Functions"]:Get()
+			local Data = Colorpickers[Field]:Get()
 			local R, G, B = Data.Color.R, Data.Color.G, Data.Color.B
 			Theme[Field] = { { R, G, B }, Data.Mode }
 		end
@@ -319,7 +319,7 @@ do
 
 		local Theme = {}
 		for _, Field in next, Indexes do
-			local Data = self.Library.Flags["Colorpicker"][Field]["Functions"]:Get()
+			local Data = Colorpickers[Field]:Get()
 			local R, G, B = Data.Color.R, Data.Color.G, Data.Color.B
 			Theme[Field] = { { R, G, B }, Data.Mode }
 		end
@@ -405,7 +405,7 @@ do
 	function ThemeManager:BuildThemeSection(Tab)
 		assert(self.Library, "Must set ThemeManager.Library first!")
 
-		local Themes = Tab:Section({ Text = "Themes", Side = "LEFT" })
+		local Themes = Tab:Section({ Title = "Themes", Side = "LEFT" })
 		for _, Name in next, Indexes do
 			Themes:Label({ Text = Name }):Colorpicker({
 				Color = self.Library.Theme[Name],
@@ -460,23 +460,19 @@ do
 			Text = "CREATE",
 			Result = "CREATED",
 			Callback = function()
-				self:SaveCustomTheme(self.Library.Flags["TextBox"]["ThemeManagerCustomThemeName"]["Text"])
+				self:SaveCustomTheme(TextBoxes["ThemeManagerCustomThemeName"]["Text"])
 
-				self.Library.Flags["Dropdown"]["ThemeManagerCustomThemeList"]["Functions"]:Values(
-					self:ReloadCustomThemes()
-				)
-				self.Library.Flags["Dropdown"]["ThemeManagerCustomThemeList"]["Functions"]:Set({})
+				Dropdowns["ThemeManagerCustomThemeList"]:Values(self:ReloadCustomThemes())
+				Dropdowns["ThemeManagerCustomThemeList"]:Set({})
 			end,
 		}):Button({
 			Text = "DELETE",
 			Result = "DELETED",
 			Callback = function()
-				self:DeleteCustomTheme(self.Library.Flags["Dropdown"]["ThemeManagerCustomThemeList"]["Current"][1])
+				self:DeleteCustomTheme(Dropdowns["ThemeManagerCustomThemeList"]["Current"][1])
 
-				self.Library.Flags["Dropdown"]["ThemeManagerCustomThemeList"]["Functions"]:Values(
-					self:ReloadCustomThemes()
-				)
-				self.Library.Flags["Dropdown"]["ThemeManagerCustomThemeList"]["Functions"]:Set({})
+				Dropdowns["ThemeManagerCustomThemeList"]:Values(self:ReloadCustomThemes())
+				Dropdowns["ThemeManagerCustomThemeList"]:Set({})
 			end,
 		})
 
@@ -484,13 +480,13 @@ do
 			Text = "LOAD",
 			Result = "LOADED",
 			Callback = function()
-				self:ApplyTheme(self.Library.Flags["Dropdown"]["ThemeManagerCustomThemeList"]["Current"][1], true)
+				self:ApplyTheme(Dropdowns["ThemeManagerCustomThemeList"]["Current"][1], true)
 			end,
 		}):Button({
 			Text = "OVERWRITE",
 			Result = "OVERWRITED",
 			Callback = function()
-				self:OverrideCustomTheme(self.Library.Flags["Dropdown"]["ThemeManagerCustomThemeList"]["Current"][1])
+				self:OverrideCustomTheme(Dropdowns["ThemeManagerCustomThemeList"]["Current"][1])
 			end,
 		})
 
@@ -499,8 +495,8 @@ do
 			Result = "DONE",
 			Callback = function()
 				self:SaveDefault(
-					self.Library.Flags["Dropdown"]["ThemeManagerCustomThemeList"]["Current"][1]
-						or self.Library.Flags["Dropdown"]["ThemeManagerBuiltList"]["Current"][1]
+					Dropdowns["ThemeManagerCustomThemeList"]["Current"][1]
+						or Dropdowns["ThemeManagerBuiltList"]["Current"][1]
 				)
 			end,
 		}):Button({
@@ -515,10 +511,8 @@ do
 			Text = "REFRESH LIST",
 			Result = "REFRESHED",
 			Callback = function()
-				self.Library.Flags["Dropdown"]["ThemeManagerCustomThemeList"]["Functions"]:Values(
-					self:ReloadCustomThemes()
-				)
-				self.Library.Flags["Dropdown"]["ThemeManagerCustomThemeList"]["Functions"]:Set({})
+				Dropdowns["ThemeManagerCustomThemeList"]:Values(self:ReloadCustomThemes())
+				Dropdowns["ThemeManagerCustomThemeList"]:Set({})
 			end,
 		})
 	end
