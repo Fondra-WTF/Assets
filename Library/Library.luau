@@ -434,7 +434,7 @@ do
 			return Toggle
 		end
 
-		function Toggle:Colorpicker(ColorpickerOptions)
+		function Toggle:Colorpicker(Options)
 			local Colorpicker = Components["Colorpicker"](Holder, Options, Toggle)
 			table.insert(Addons, Colorpicker)
 			RefreshAddons()
