@@ -1410,7 +1410,8 @@ do
 
 		local HH, SS, VV = Options.Color:ToHSV()
 		local Colorpicker = {
-			Current = { HH, SS, VV, Options.Alpha },
+			Color = Color3.fromHSV(HH, SS, VV),
+			Alpha = Options.Alpha,
 			Mode = "NONE",
 			Objects = {},
 		}
@@ -1440,7 +1441,7 @@ do
 			Parent = ColorpickerInline,
 		})
 		local ColorpickerDropdownOutline = Functions["Create"]("TextButton", {
-			Size = UDim2.new(0, Colorpicker.Current[4] and 150 or 131, 0, 170),
+			Size = UDim2.new(0, Colorpicker.Alpha and 150 or 131, 0, 170),
 			Position = UDim2.new(0, 0, 0, 0),
 			Parent = ComponentsGUI,
 			Visible = false,
@@ -1483,7 +1484,7 @@ do
 			Padding = UDim.new(0, 1),
 		})
 		local ColorpickerColorBoxOutline = Functions["Create"]("Frame", {
-			Size = UDim2.new(0, Colorpicker.Current[4] and 116 or 112, 1, 0),
+			Size = UDim2.new(0, Colorpicker.Alpha and 116 or 112, 1, 0),
 			Parent = ColorpickerMainHolder,
 		})
 		local ColorpickerColorBoxFill = Functions["Create"]("TextButton", {
@@ -1533,15 +1534,15 @@ do
 			Text = "COPY",
 			Result = "COPIED",
 			Callback = function()
-				local H, S, V, Alpha = unpack(Colorpicker.Current)
-				Copied = { H, S, V, Alpha }
+				Copied = { Color = Colorpicker.Color, Alpha = Colorpicker.Alpha }
 			end,
 		}):Button({
 			Text = "PASTE",
 			Result = "PASTED",
 			Callback = function()
-				local H, S, V, Alpha = unpack(Copied)
-				Colorpicker:Set(Color3.fromHSV(H, S, V), Alpha and Alpha or Colorpicker.Current[4])
+				if Copied and Copied.Color then
+					Colorpicker:Set(Copied.Color, Copied.Alpha or Colorpicker.Alpha)
+				end
 			end,
 		})
 
@@ -1573,7 +1574,7 @@ do
 						- ColorpickerColorBoxFill.AbsolutePosition
 					local S = math.clamp(MousePos.X / ColorpickerColorBoxFill.AbsoluteSize.X, 0, 1)
 					local V = 1 - math.clamp(MousePos.Y / ColorpickerColorBoxFill.AbsoluteSize.Y, 0, 1)
-					local H = Colorpicker.Current[1]
+					local H = Color3.toHSV(Colorpicker.Color)
 					Colorpicker:Set(Color3.fromHSV(H, S, V))
 				end
 			end)
@@ -1637,7 +1638,7 @@ do
 						ColorpickerHueInline.AbsoluteSize.Y
 					)
 					local H = Y / ColorpickerHueInline.AbsoluteSize.Y
-					local S, V = Colorpicker.Current[2], Colorpicker.Current[3]
+					local _, S, V = Color3.toHSV(Colorpicker.Color)
 					Colorpicker:Set(Color3.fromHSV(H, S, V))
 				end
 			end)
@@ -1649,7 +1650,7 @@ do
 			end)
 		end)
 
-		if Colorpicker.Current[4] then
+		if Colorpicker.Alpha then
 			local ColorpickerAlphaOutline = Functions["Create"]("Frame", {
 				Size = UDim2.new(0, 14, 1, 0),
 				Parent = ColorpickerMainHolder,
@@ -1691,8 +1692,7 @@ do
 							ColorpickerAlphaInline.AbsoluteSize.Y
 						)
 						local AlphaValue = 1 - (Y / ColorpickerAlphaInline.AbsoluteSize.Y)
-						local H, S, V = unpack(Colorpicker.Current)
-						Colorpicker:Set(Color3.fromHSV(H, S, V), AlphaValue)
+						Colorpicker:Set(Colorpicker.Color, AlphaValue)
 					end
 				end)
 				Functions["AddConnection"]("AlphaEnd", UserInputService.InputEnded, function(Input)
@@ -1713,27 +1713,25 @@ do
 
 		function Colorpicker:Set(NewColor, Alpha, Mode)
 			local H, S, V = Color3.toHSV(NewColor)
-			if Colorpicker.Current[4] ~= nil then
-				Alpha = Alpha or Colorpicker.Current[4]
-				Colorpicker.Current = { H, S, V, Alpha }
-			else
-				Colorpicker.Current = { H, S, V }
+			Colorpicker.Color = Color3.fromHSV(H, S, V)
+
+			if Colorpicker.Alpha ~= nil then
+				Colorpicker.Alpha = Alpha or Colorpicker.Alpha
 			end
-			ColorpickerFill.BackgroundColor3 = Color3.fromHSV(H, S, V)
-			if Colorpicker.Current[4] ~= nil then
-				ColorpickerFill.BackgroundTransparency = 1 - Colorpicker.Current[4]
+
+			ColorpickerFill.BackgroundColor3 = Colorpicker.Color
+
+			if Colorpicker.Alpha ~= nil then
+				ColorpickerFill.BackgroundTransparency = 1 - Colorpicker.Alpha
 				if Colorpicker.Objects.AlphaCursor and Colorpicker.Objects.AlphaInline then
-					Colorpicker.Objects.AlphaCursor.Position = UDim2.new(
-						0,
-						2,
-						0,
-						(1 - Colorpicker.Current[4]) * Colorpicker.Objects.AlphaInline.AbsoluteSize.Y
-					)
-					Colorpicker.Objects.AlphaInline.BackgroundColor3 = Color3.fromHSV(H, S, V)
+					Colorpicker.Objects.AlphaCursor.Position =
+						UDim2.new(0, 2, 0, (1 - Colorpicker.Alpha) * Colorpicker.Objects.AlphaInline.AbsoluteSize.Y)
+					Colorpicker.Objects.AlphaInline.BackgroundColor3 = Colorpicker.Color
 				end
 			else
 				ColorpickerFill.BackgroundTransparency = 0
 			end
+
 			ColorpickerColorBoxFill.BackgroundColor3 = Color3.fromHSV(H, 1, 1)
 			ColorpickerHueCursorOutline.Position = UDim2.new(0, 2, 0, H * ColorpickerHueInline.AbsoluteSize.Y)
 			ColorpickerColorBoxCursorOutline.Position = UDim2.new(
@@ -1742,16 +1740,18 @@ do
 				0,
 				(1 - V) * ColorpickerColorBoxFill.AbsoluteSize.Y
 			)
+
 			if Mode then
 				Pickers[Colorpicker] = Mode
 			end
+
 			if Options.Callback then
-				task.spawn(Options.Callback, Colorpicker.Current)
+				task.spawn(Options.Callback, Colorpicker.Color, Colorpicker.Alpha)
 			end
 		end
 
 		function Colorpicker:Get()
-			return { Current = Colorpicker.Current, Mode = Colorpicker.Mode }
+			return { Color = Colorpicker.Color, Alpha = Colorpicker.Alpha, Mode = Colorpicker.Mode }
 		end
 
 		function Colorpicker:Callback(Function)
@@ -1818,7 +1818,7 @@ do
 			Try = 0
 		end)
 
-		Colorpicker:Set(Color3.fromHSV(HH, SS, VV), Colorpicker.Current[4], Colorpicker.Mode)
+		Colorpicker:Set(Color3.fromHSV(HH, SS, VV), Colorpicker.Alpha, Colorpicker.Mode)
 
 		if Options.Flag then
 			Colorpickers[Options.Flag] = Colorpicker
@@ -3038,18 +3038,26 @@ do
 				if Cache[Player.UserId] then
 					return
 				end
-				local ok, content = pcall(function()
-					return Players:GetUserThumbnailAsync(
-						Player.UserId,
-						Enum.ThumbnailType.HeadShot,
-						Enum.ThumbnailSize.Size150x150
-					)
+
+				task.spawn(function()
+					local ok, content = pcall(function()
+						return Players:GetUserThumbnailAsync(
+							Player.UserId,
+							Enum.ThumbnailType.HeadShot,
+							Enum.ThumbnailSize.Size150x150
+						)
+					end)
+
+					if ok then
+						Cache[Player.UserId] = content
+					else
+						Cache[Player.UserId] = "rbxasset://textures/ui/GuiImagePlaceholder.png"
+					end
+
+					if Selected == Player then
+						PreviewIconImage.Image = Cache[Player.UserId]
+					end
 				end)
-				if ok then
-					Cache[Player.UserId] = content
-				else
-					Cache[Player.UserId] = "rbxasset://textures/ui/GuiImagePlaceholder.png"
-				end
 			end
 
 			local function GetThumbnail(Player)
@@ -3551,7 +3559,7 @@ do
 					AnchorPoint = Vector2.new(0.5, 0.5),
 				})
 
-				local HolderLayout = Functions["Create"]("UIListLayout", {
+				Functions["Create"]("UIListLayout", {
 					Parent = HolderMain,
 					HorizontalAlignment = Enum.HorizontalAlignment.Center,
 				})
@@ -3568,7 +3576,7 @@ do
 				local MultiSectionTabs, MultiSectionCurrentTab = {}, nil
 				local MultiSection = {}
 
-				function SetMultiSectionTab(Current)
+				local function SetMultiSectionTab(Current)
 					for Index, Tab in next, MultiSectionTabs do
 						local Selected = Tab == Current
 
@@ -3641,7 +3649,12 @@ do
 					Functions["AddThemeRegistery"](HolderMain, { BackgroundColor3 = "Section Background" })
 					Functions["AddThemeRegistery"](Button, { BackgroundColor3 = "Section Background" })
 
-					function ResizeMultiSection()
+					Section.Objects.Background = Button
+					Section.Objects.Gradient = Gradient
+					Section.Objects.Label = Label
+					Section.Objects.Main = HolderMain
+
+					local function ResizeMultiSection()
 						if MultiSectionCurrentTab ~= Section then
 							return
 						end
@@ -3652,11 +3665,6 @@ do
 							Main.Size = UDim2.new(1, 0, 0, 24 + HolderLayout.AbsoluteContentSize.Y)
 						end
 					end
-
-					Section.Objects.Background = Button
-					Section.Objects.Gradient = Gradient
-					Section.Objects.Label = Label
-					Section.Objects.Main = HolderMain
 
 					Functions["AddConnection"](nil, Button.MouseButton1Down, function()
 						if MultiSectionCurrentTab == Section then
