@@ -406,9 +406,9 @@ do
 	function ThemeManager:BuildThemeSection(Tab)
 		assert(self.Library, "Must set ThemeManager.Library first!")
 
-		local Themes = Tab.Functions.Section({ Text = "Themes", Side = "LEFT" })
+		local Themes = Tab:Section({ Text = "Themes", Side = "LEFT" })
 		for _, Name in next, Indexes do
-			Themes.Functions:Label({ Text = Name }).Functions:Colorpicker({
+			Themes:Label({ Text = Name }):Colorpicker({
 				Color = self.Library.Theme[Name],
 				Flag = Name,
 				Callback = function()
@@ -427,7 +427,7 @@ do
 			return self.Presets[A][1] < self.Presets[B][1]
 		end)
 
-		Themes.Functions:Dropdown({
+		Themes:Dropdown({
 			Text = "Built In Themes",
 			Flag = "ThemeManagerBuiltList",
 			Options = ThemesArray,
@@ -440,7 +440,7 @@ do
 			end,
 		})
 
-		Themes.Functions:Dropdown({
+		Themes:Dropdown({
 			Text = "Custom Themes List",
 			Flag = "ThemeManagerCustomThemeList",
 
@@ -451,76 +451,68 @@ do
 			Maximum = 1,
 		})
 
-		Themes.Functions:TextBox({
+		Themes:TextBox({
 			Text = "",
 			Placeholder = "Custom Theme Name",
 			Flag = "ThemeManagerCustomThemeName",
 		})
 
-		Themes.Functions
-			:Button({
-				Text = "CREATE",
-				Result = "CREATED",
-				Callback = function()
-					self:SaveCustomTheme(self.Library.Flags["TextBox"]["ThemeManagerCustomThemeName"]["Text"])
+		Themes:Button({
+			Text = "CREATE",
+			Result = "CREATED",
+			Callback = function()
+				self:SaveCustomTheme(self.Library.Flags["TextBox"]["ThemeManagerCustomThemeName"]["Text"])
 
-					self.Library.Flags["Dropdown"]["ThemeManagerCustomThemeList"]["Functions"]:Values(
-						self:ReloadCustomThemes()
-					)
-					self.Library.Flags["Dropdown"]["ThemeManagerCustomThemeList"]["Functions"]:Set({})
-				end,
-			}).Functions
-			:Button({
-				Text = "DELETE",
-				Result = "DELETED",
-				Callback = function()
-					self:DeleteCustomTheme(self.Library.Flags["Dropdown"]["ThemeManagerCustomThemeList"]["Current"][1])
+				self.Library.Flags["Dropdown"]["ThemeManagerCustomThemeList"]["Functions"]:Values(
+					self:ReloadCustomThemes()
+				)
+				self.Library.Flags["Dropdown"]["ThemeManagerCustomThemeList"]["Functions"]:Set({})
+			end,
+		}):Button({
+			Text = "DELETE",
+			Result = "DELETED",
+			Callback = function()
+				self:DeleteCustomTheme(self.Library.Flags["Dropdown"]["ThemeManagerCustomThemeList"]["Current"][1])
 
-					self.Library.Flags["Dropdown"]["ThemeManagerCustomThemeList"]["Functions"]:Values(
-						self:ReloadCustomThemes()
-					)
-					self.Library.Flags["Dropdown"]["ThemeManagerCustomThemeList"]["Functions"]:Set({})
-				end,
-			})
+				self.Library.Flags["Dropdown"]["ThemeManagerCustomThemeList"]["Functions"]:Values(
+					self:ReloadCustomThemes()
+				)
+				self.Library.Flags["Dropdown"]["ThemeManagerCustomThemeList"]["Functions"]:Set({})
+			end,
+		})
 
-		Themes.Functions
-			:Button({
-				Text = "LOAD",
-				Result = "LOADED",
-				Callback = function()
-					self:ApplyTheme(self.Library.Flags["Dropdown"]["ThemeManagerCustomThemeList"]["Current"][1], true)
-				end,
-			}).Functions
-			:Button({
-				Text = "OVERWRITE",
-				Result = "OVERWRITED",
-				Callback = function()
-					self:OverrideCustomTheme(
-						self.Library.Flags["Dropdown"]["ThemeManagerCustomThemeList"]["Current"][1]
-					)
-				end,
-			})
+		Themes:Button({
+			Text = "LOAD",
+			Result = "LOADED",
+			Callback = function()
+				self:ApplyTheme(self.Library.Flags["Dropdown"]["ThemeManagerCustomThemeList"]["Current"][1], true)
+			end,
+		}):Button({
+			Text = "OVERWRITE",
+			Result = "OVERWRITED",
+			Callback = function()
+				self:OverrideCustomTheme(self.Library.Flags["Dropdown"]["ThemeManagerCustomThemeList"]["Current"][1])
+			end,
+		})
 
-		Themes.Functions
-			:Button({
-				Text = "SAVE DEFAULT",
-				Result = "DONE",
-				Callback = function()
-					self:SaveDefault(
-						self.Library.Flags["Dropdown"]["ThemeManagerCustomThemeList"]["Current"][1]
-							or self.Library.Flags["Dropdown"]["ThemeManagerBuiltList"]["Current"][1]
-					)
-				end,
-			}).Functions
-			:Button({
-				Text = "REMOVE DEFAULT",
-				Result = "DONE",
-				Callback = function()
-					self:RemoveDefault()
-				end,
-			})
+		Themes:Button({
+			Text = "SAVE DEFAULT",
+			Result = "DONE",
+			Callback = function()
+				self:SaveDefault(
+					self.Library.Flags["Dropdown"]["ThemeManagerCustomThemeList"]["Current"][1]
+						or self.Library.Flags["Dropdown"]["ThemeManagerBuiltList"]["Current"][1]
+				)
+			end,
+		}):Button({
+			Text = "REMOVE DEFAULT",
+			Result = "DONE",
+			Callback = function()
+				self:RemoveDefault()
+			end,
+		})
 
-		Themes.Functions:Button({
+		Themes:Button({
 			Text = "REFRESH LIST",
 			Result = "REFRESHED",
 			Callback = function()
