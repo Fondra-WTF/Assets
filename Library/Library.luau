@@ -1096,10 +1096,10 @@ do
 		Functions["AddThemeRegistery"](LabelTextLabel, { TextColor3 = "Active Text" })
 
 		local Addons = {}
-		function Label:Refresh()
+		function RefreshAddons()
 			local Offset = 0
 			for Index, Addon in next, Addons do
-				Offset = Offset - (Index == 1 and 0 or Addon.Objects.Main.Size.X.Offset + 2)
+				Offset = Offset - 2 - (Index == 1 and 0 or Addon.Objects.Main.Size.X.Offset + 2)
 				Addon.Objects.Main.Position = UDim2.new(1, Offset, 0.5, 0)
 			end
 		end
@@ -1107,7 +1107,7 @@ do
 		function Label:Colorpicker(Options)
 			local Colorpicker = Components["Colorpicker"](Holder, Options, Label)
 			table.insert(Addons, Colorpicker)
-			self:Refresh()
+			RefreshAddons()
 			return Label
 		end
 
