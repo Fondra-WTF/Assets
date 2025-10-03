@@ -3641,7 +3641,7 @@ do
 					Functions["AddThemeRegistery"](HolderMain, { BackgroundColor3 = "Section Background" })
 					Functions["AddThemeRegistery"](Button, { BackgroundColor3 = "Section Background" })
 
-					function Section:ResizeSection()
+					function ResizeMultiSection()
 						if MultiSectionCurrentTab ~= Section then
 							return
 						end
@@ -3664,7 +3664,7 @@ do
 						end
 
 						SetMultiSectionTab(Section)
-						Section:ResizeSection()
+						ResizeMultiSection()
 					end)
 
 					function Section:Toggle(Options)
@@ -3685,7 +3685,7 @@ do
 						})
 
 						local Toggle = Components["Toggle"](Main, Options)
-						self:ResizeSection()
+						ResizeMultiSection()
 
 						return Toggle
 					end
@@ -3707,7 +3707,7 @@ do
 						})
 
 						local Slider = Components["Slider"](Main, Options)
-						self:ResizeSection()
+						ResizeMultiSection()
 
 						return Slider
 					end
@@ -3729,7 +3729,7 @@ do
 						})
 
 						local Dropdown = Components["Dropdown"](Main, Options)
-						self:ResizeSection()
+						ResizeMultiSection()
 
 						return Dropdown
 					end
@@ -3751,7 +3751,7 @@ do
 						})
 
 						local TextBox = Components["TextBox"](Main, Options)
-						self:ResizeSection()
+						ResizeMultiSection()
 
 						return TextBox
 					end
@@ -3773,7 +3773,7 @@ do
 						})
 
 						local Button = Components["Button"](Main, Options)
-						self:ResizeSection()
+						ResizeMultiSection()
 
 						return Button
 					end
@@ -3795,7 +3795,7 @@ do
 						})
 
 						local Label = Components["Label"](Main, Options)
-						self:ResizeSection()
+						ResizeMultiSection()
 
 						return Label
 					end
@@ -3816,14 +3816,14 @@ do
 							AnchorPoint = Vector2.new(0.5, 0.5),
 						})
 
-						self:ResizeSection()
+						ResizeMultiSection()
 
 						return
 					end
 
 					table.insert(MultiSectionTabs, Section)
 					SetMultiSectionTab(MultiSectionTabs[1])
-					Section:ResizeSection()
+					ResizeMultiSection()
 
 					return Section
 				end
