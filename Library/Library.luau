@@ -1827,7 +1827,6 @@ do
 end
 
 do
-	Library.Stats.Mode = "OFFLINE"
 	Functions["AddConnection"]("Statistics", RunService.RenderStepped, function(Delta)
 		Library.Stats.FPS = math.round(1 / Stats.FrameTime)
 		Library.Stats.Ping = Stats.Network:FindFirstChild("ServerStatsItem")
@@ -2416,7 +2415,6 @@ do
 			Label.Text = Properties.Format
 				:gsub("${FPS}", Library.Stats.FPS or 0)
 				:gsub("${PING}", Library.Stats.Ping or 0)
-				:gsub("${MODE}", Library.Stats.Mode or "OFFLINE")
 				:gsub("${TIME}", os.date("%X", os.time()))
 				:gsub("${DATE}", os.date("%Y/%m/%d", os.time()))
 
