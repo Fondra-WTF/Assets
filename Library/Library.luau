@@ -66,22 +66,6 @@ local Fonts = {
 	["Proggy"] = "https://github.com/Fondra-Hub/Assets/raw/refs/heads/main/Fonts/Proggy.ttf",
 }
 
-local Images = {
-	["Gradient 90"] = "https://raw.githubusercontent.com/portallol/luna/main/Gradient.png",
-	["Dropdown Down"] = "https://i.imgur.com/uHliPN2.png",
-	["Dropdown Up"] = "https://i.imgur.com/7H3o3h2.png",
-	["Saturation One"] = "https://i.imgur.com/08Iv5Jk.png",
-	["Saturation Two"] = "https://i.imgur.com/38BPVmI.png",
-	["Alpha"] = "https://i.imgur.com/gqN9Dzg.png",
-	["Hue"] = "https://i.imgur.com/wNQNq7p.png",
-}
-
-for Index, Object in next, Images do
-	if not isfile("Fondra/Assets/Images/" .. Index .. ".png") then
-		writefile("Fondra/Assets/Images/" .. Index .. ".png", game:HttpGet(Object))
-	end
-end
-
 for Index, Object in next, Fonts do
 	if not isfile("Fondra/Assets/Fonts/TTF/" .. Index .. ".ttf") then
 		writefile("Fondra/Assets/Fonts/TTF/" .. Index .. ".ttf", game:HttpGet(Object))
@@ -103,10 +87,6 @@ for Index, Object in next, Fonts do
 	)
 end
 
-local CustomFont =
-	Font.new(getcustomasset("Fondra/Assets/Fonts/JSON/Proggy.json"), Enum.FontWeight.Regular, Enum.FontStyle.Normal)
-
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local UserInputService = game:GetService("UserInputService")
 local TweenService = game:GetService("TweenService")
 local GuiService = game:GetService("GuiService")
@@ -117,7 +97,6 @@ local Players = game:GetService("Players")
 local Stats = game:GetService("Stats")
 
 local Client = Players.LocalPlayer
-local PlayerGui = Client.PlayerGui
 local Mouse = Client:GetMouse()
 local Camera = Workspace.CurrentCamera
 
@@ -214,10 +193,16 @@ do
 		end
 	end
 
-	Functions["CustomAsset"] = function(Path)
+	Functions["CustomAsset"] = function(Path, Link)
 		if Cache[Path] then
 			return Cache[Path]
 		else
+			if not isfile(Path) then
+				if not Link then return Client:Kick("WTF??") end
+
+				writefile(Path, game:HttpGet(Link))
+			end
+
 			Cache[Path] = getcustomasset(Path)
 		end
 
@@ -325,6 +310,8 @@ do
 	-- end
 end
 
+local CustomFont = Font.new(Functions["CustomAsset"]("Fondra/Assets/Fonts/JSON/Proggy.json"), Enum.FontWeight.Regular, Enum.FontStyle.Normal)
+
 local Components = {}
 do
 	Components["Toggle"] = function(Holder, Options)
@@ -403,6 +390,10 @@ do
 		end
 
 		function Toggle:Set(Bool)
+			if Toggle.Value == Bool then
+				return
+			end
+
 			Toggle.Value = Bool
 
 			Functions["UpdateThemeRegistery"](ToggleMiddle, {
@@ -1496,13 +1487,19 @@ do
 			Parent = ColorpickerColorBoxFill,
 			BackgroundTransparency = 1,
 			Rotation = -180,
-			Image = Functions["CustomAsset"]("Fondra/Assets/Images/Saturation One.png"),
+			Image = Functions["CustomAsset"](
+				"Fondra/Assets/Library/Images/Saturation One.png",
+				"https://raw.githubusercontent.com/Fondra-WTF/Assets/refs/heads/main/Library/Images/Saturation%20One.png"
+			),
 		})
 		local ColorpickerColorBoxSaturationTwo = Functions["Create"]("ImageLabel", {
 			Size = UDim2.new(1, 0, 1, 0),
 			Parent = ColorpickerColorBoxFill,
 			BackgroundTransparency = 1,
-			Image = Functions["CustomAsset"]("Fondra/Assets/Images/Saturation Two.png"),
+			Image = Functions["CustomAsset"](
+				"Fondra/Assets/Library/Images/Saturation Two.png",
+				"https://raw.githubusercontent.com/Fondra-WTF/Assets/refs/heads/main/Library/Images/Saturation%20Two.png"
+			),
 			Rotation = 0,
 		})
 		local ColorpickerColorBoxCursorOutline = Functions["Create"]("Frame", {
@@ -1599,7 +1596,10 @@ do
 			Size = UDim2.new(1, -2, 1, -2),
 			Position = UDim2.new(0.5, 0, 0.5, 0),
 			AnchorPoint = Vector2.new(0.5, 0.5),
-			Image = Functions["CustomAsset"]("Fondra/Assets/Images/Hue.png"),
+			Image = Functions["CustomAsset"](
+				"Fondra/Assets/Library/Images/Hue.png",
+				"https://raw.githubusercontent.com/Fondra-WTF/Assets/refs/heads/main/Library/Images/Hue.png"
+			),
 			Parent = ColorpickerHueMiddle,
 		})
 		local ColorpickerHueCursorOutline = Functions["Create"]("Frame", {
@@ -1664,7 +1664,10 @@ do
 				Position = UDim2.new(0.5, 0, 0.5, 0),
 				AnchorPoint = Vector2.new(0.5, 0.5),
 				Parent = ColorpickerAlphaMiddle,
-				Image = Functions["CustomAsset"]("Fondra/Assets/Images/Alpha.png"),
+				Image = Functions["CustomAsset"](
+					"Fondra/Asset/Library/Images/Alpha.png",
+					"https://raw.githubusercontent.com/Fondra-WTF/Assets/refs/heads/main/Library/Images/Alpha.png"
+				),
 			})
 			local ColorpickerAlphaCursorOutline = Functions["Create"]("Frame", {
 				Size = UDim2.new(1, -4, 0, 3),
@@ -2642,7 +2645,10 @@ do
 			Size = UDim2.new(0, 20, 0, 28),
 			Position = UDim2.new(0.5, 0, 0.5, 0),
 			BackgroundTransparency = 1,
-			Image = Functions["CustomAsset"]("Fondra/Assets/Images/Cursor.png"),
+			Image = Functions["CustomAsset"](
+				"Fondra/Asset/Library/Images/Cursor.png",
+				"https://raw.githubusercontent.com/Fondra-WTF/Assets/refs/heads/main/Library/Images/Cursor.png"
+			),
 		})
 
 		local CursorFill = Functions["Create"]("ImageLabel", {
@@ -2650,7 +2656,10 @@ do
 			Size = UDim2.new(1, -2, 1, -2),
 			Position = UDim2.new(0, 1, 0, 1),
 			BackgroundTransparency = 1,
-			Image = Functions["CustomAsset"]("Fondra/Assets/Images/Cursor.png"),
+			Image = Functions["CustomAsset"](
+				"Fondra/Asset/Library/Images/Cursor.png",
+				"https://raw.githubusercontent.com/Fondra-WTF/Assets/refs/heads/main/Library/Images/Cursor.png"
+			),
 		})
 
 		Functions["AddThemeRegistery"](MainFrameOutline, { BackgroundColor3 = "Border 1" })
@@ -2852,7 +2861,10 @@ do
 				Size = UDim2.new(1, 0, 1, 0),
 				BackgroundTransparency = 1,
 				ImageTransparency = 0.6,
-				Image = Functions["CustomAsset"]("Fondra/Assets/Images/Gradient 90.png"),
+				Image = Functions["CustomAsset"](
+					"Fondra/Asset/Library/Images/Gradient 90.png",
+					"https://raw.githubusercontent.com/Fondra-WTF/Assets/refs/heads/main/Library/Images/Gradient%2090.png"
+				),
 			})
 
 			local Label = Functions["Create"]("TextLabel", {
@@ -3218,7 +3230,10 @@ do
 				Position = UDim2.new(0, 0, 0, 0),
 				BackgroundTransparency = 1,
 				ImageTransparency = 0.6,
-				Image = Functions["CustomAsset"]("Fondra/Assets/Images/Gradient 90.png"),
+				Image = Functions["CustomAsset"](
+					"Fondra/Asset/Library/Images/Gradient 90.png",
+					"https://raw.githubusercontent.com/Fondra-WTF/Assets/refs/heads/main/Library/Images/Gradient%2090.png"
+				),
 			})
 
 			local Label = Functions["Create"]("TextLabel", {
@@ -3626,7 +3641,10 @@ do
 						Position = UDim2.new(0, 0, 0, 0),
 						BackgroundTransparency = 1,
 						ImageTransparency = 0.6,
-						Image = Functions["CustomAsset"]("Fondra/Assets/Images/Gradient 90.png"),
+						Image = Functions["CustomAsset"](
+							"Fondra/Asset/Library/Images/Gradient 90.png",
+							"https://raw.githubusercontent.com/Fondra-WTF/Assets/refs/heads/main/Library/Images/Gradient%2090.png"
+						),
 					})
 
 					local Label = Functions["Create"]("TextLabel", {
