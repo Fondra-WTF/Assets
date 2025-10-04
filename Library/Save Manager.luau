@@ -139,7 +139,7 @@ do
 			Config[Index] = {
 				Type = "Keypicker",
 				Value = {
-					Input = Keypicker.Input,
+					Input = Keypicker.Input.Name,
 					Mode = Keypicker.Mode,
 				},
 			}
@@ -204,7 +204,12 @@ do
 				elseif Data.Type == "TextBox" and TextBoxes[Index] then
 					TextBoxes[Index]:Set(Data.Value)
 				elseif Data.Type == "Keypicker" and Keypickers[Index] then
-					Keypickers[Index]:Set(Data.Value.Input, Data.Value.Mode)
+					local Input = Data.Value.Input
+					local Mode = Data.Value.Mode
+					if type(Input) == "string" then
+						Input = Enum.KeyCode[Input]
+					end
+					Keypickers[Index]:Set(Input, Mode)
 				elseif Data.Type == "Colorpicker" and Colorpickers[Index] then
 					local Current = Data.Value.Color
 					local Color = Color3.new(Current[1], Current[2], Current[3])
@@ -281,7 +286,7 @@ do
 			Config[Index] = {
 				Type = "Keypicker",
 				Value = {
-					Input = Keypicker.Input,
+					Input = Keypicker.Input.Name,
 					Mode = Keypicker.Mode,
 				},
 			}
