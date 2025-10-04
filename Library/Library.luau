@@ -462,7 +462,7 @@ do
 			Current = Options.Current or 50,
 			Maximum = Options.Maximum or 100,
 			Decimals = Options.Decimals or 1,
-			Format = "${CURRENT}/${MAXIMUM}",
+			Format = Options.Format or "${CURRENT}/${MAXIMUM}",
 		}
 
 		local Slider = {
