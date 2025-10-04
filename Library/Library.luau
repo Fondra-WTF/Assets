@@ -1,16 +1,6 @@
 -- ! Powered by ChatGPT, Made by QwenAI, Double Checked by DeepseekAI and quadruple checked by GeminiAI
 -- ? Only the best, Made by AI😱
 
-makefolder("Fondra")
-makefolder("Fondra/Assets")
-makefolder("Fondra/Assets/Fonts")
-makefolder("Fondra/Assets/Fonts/TTF")
-makefolder("Fondra/Assets/Fonts/JSON")
-
-makefolder("Fondra/Assets/Images")
-makefolder("Fondra/Assets/Videos")
-makefolder("Fondra/Assets/Sounds")
-
 getgenv().Toggles = {}
 getgenv().Sliders = {}
 getgenv().Dropdowns = {}
@@ -1665,7 +1655,7 @@ do
 				AnchorPoint = Vector2.new(0.5, 0.5),
 				Parent = ColorpickerAlphaMiddle,
 				Image = Functions["CustomAsset"](
-					"Fondra/Asset/Library/Images/Alpha.png",
+					"Fondra/Assets/Library/Images/Alpha.png",
 					"https://raw.githubusercontent.com/Fondra-WTF/Assets/refs/heads/main/Library/Images/Alpha.png"
 				),
 			})
@@ -2646,7 +2636,7 @@ do
 			Position = UDim2.new(0.5, 0, 0.5, 0),
 			BackgroundTransparency = 1,
 			Image = Functions["CustomAsset"](
-				"Fondra/Asset/Library/Images/Cursor.png",
+				"Fondra/Assets/Library/Images/Cursor.png",
 				"https://raw.githubusercontent.com/Fondra-WTF/Assets/refs/heads/main/Library/Images/Cursor.png"
 			),
 		})
@@ -2657,7 +2647,7 @@ do
 			Position = UDim2.new(0, 1, 0, 1),
 			BackgroundTransparency = 1,
 			Image = Functions["CustomAsset"](
-				"Fondra/Asset/Library/Images/Cursor.png",
+				"Fondra/Assets/Library/Images/Cursor.png",
 				"https://raw.githubusercontent.com/Fondra-WTF/Assets/refs/heads/main/Library/Images/Cursor.png"
 			),
 		})
@@ -2862,7 +2852,7 @@ do
 				BackgroundTransparency = 1,
 				ImageTransparency = 0.6,
 				Image = Functions["CustomAsset"](
-					"Fondra/Asset/Library/Images/Gradient 90.png",
+					"Fondra/Assets/Library/Images/Gradient 90.png",
 					"https://raw.githubusercontent.com/Fondra-WTF/Assets/refs/heads/main/Library/Images/Gradient%2090.png"
 				),
 			})
@@ -3231,7 +3221,7 @@ do
 				BackgroundTransparency = 1,
 				ImageTransparency = 0.6,
 				Image = Functions["CustomAsset"](
-					"Fondra/Asset/Library/Images/Gradient 90.png",
+					"Fondra/Assets/Library/Images/Gradient 90.png",
 					"https://raw.githubusercontent.com/Fondra-WTF/Assets/refs/heads/main/Library/Images/Gradient%2090.png"
 				),
 			})
@@ -3642,7 +3632,7 @@ do
 						BackgroundTransparency = 1,
 						ImageTransparency = 0.6,
 						Image = Functions["CustomAsset"](
-							"Fondra/Asset/Library/Images/Gradient 90.png",
+							"Fondra/Assets/Library/Images/Gradient 90.png",
 							"https://raw.githubusercontent.com/Fondra-WTF/Assets/refs/heads/main/Library/Images/Gradient%2090.png"
 						),
 					})
