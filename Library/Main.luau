@@ -687,7 +687,7 @@ do
 
 			for _, Data in next, Objects do
 				Data.Frame:Destroy()
-				Data.Connection:Disconnect()
+				Functions["RemoveConnection"](Data.Connection)
 			end
 
 			table.clear(Objects)
