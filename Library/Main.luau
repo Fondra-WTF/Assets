@@ -309,8 +309,8 @@ do
 			Text = Options.Text or "TOGGLE",
 			Flag = Options.Flag,
 			Callback = Options.Callback,
-			Dangerous = Options.Dangerous or false,
-			Value = Options.Value or false,
+			Dangerous = Options.Dangerous and Options.Dangerous or false,
+			Value = Options.Value and Options.Value or false,
 		}
 
 		local Toggle = {
@@ -834,7 +834,7 @@ do
 			Text = Options.Text or "BUTTON",
 			Result = Options.Result or "PRESSED",
 			Callback = Options.Callback,
-			Confirm = Options.Confirm or false,
+			Confirm = Options.Confirm and Options.Confirm or false,
 		}
 
 		local Button = {}
@@ -1097,7 +1097,7 @@ do
 		local Options = {
 			Text = Options.Text or "KEY",
 			Side = Options.Side or "LEFT",
-			Display = Options.Display or true,
+			Display = Options.Display and Options.Display or true,
 			Flag = Options.Flag,
 			Callback = Options.Callback,
 			Input = Options.Input or Enum.KeyCode.E,
