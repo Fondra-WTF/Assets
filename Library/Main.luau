@@ -309,8 +309,8 @@ do
 			Text = Options.Text or "TOGGLE",
 			Flag = Options.Flag,
 			Callback = Options.Callback,
-			Dangerous = Options.Dangerous and Options.Dangerous or false,
-			Value = Options.Value and Options.Value or false,
+			Dangerous = Options.Dangerous == true and true or false,
+			Value = Options.Value == true and true or false,
 		}
 
 		local Toggle = {
@@ -1097,7 +1097,7 @@ do
 		local Options = {
 			Text = Options.Text or "KEY",
 			Side = Options.Side or "LEFT",
-			Display = Options.Display and Options.Display or true,
+			Display = Options.Display == false and false or true,
 			Flag = Options.Flag,
 			Callback = Options.Callback,
 			Input = Options.Input or Enum.KeyCode.E,
@@ -1235,6 +1235,7 @@ do
 					{ TextColor3 = self.Mode == Index and "Accent" or "Inactive Text" }
 				)
 			end
+
 			if Options.Callback then
 				task.spawn(Options.Callback, { Input = self.Input, Mode = self.Mode })
 			end
