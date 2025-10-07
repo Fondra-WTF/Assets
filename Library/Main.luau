@@ -1097,6 +1097,7 @@ do
 		local Options = {
 			Text = Options.Text or "KEY",
 			Side = Options.Side or "LEFT",
+			Display = Options.Display or true,
 			Flag = Options.Flag,
 			Callback = Options.Callback,
 			Input = Options.Input or Enum.KeyCode.E,
@@ -1223,7 +1224,7 @@ do
 			if Display == "-" then
 				DisplayKeybind:SetVisible(false)
 			else
-				DisplayKeybind:SetVisible(true)
+				DisplayKeybind:SetVisible(Options.Display)
 			end
 
 			DisplayKeybind:SetIndex(self.Text)
@@ -2265,15 +2266,6 @@ do
 	end
 
 	Library.Keybinds = Library:Indicator({ Title = "KEYBINDS" })
-	Functions["AddConnection"]("KeybindsFade", UserInputService.InputBegan, function(Input, Processed)
-		if Processed then
-			return
-		end
-
-		if Input.KeyCode == Enum.KeyCode.End then
-			Library.Keybinds:Fade(not Library.Keybinds.Visible, 0.25)
-		end
-	end)
 
 	function Library:Watermark(Properties)
 		local Properties = {
@@ -2350,10 +2342,6 @@ do
 		Functions["AddConnection"]("WatermarkFade", UserInputService.InputBegan, function(Input, Processed)
 			if Processed then
 				return
-			end
-
-			if Input.KeyCode == Enum.KeyCode.Insert then
-				Watermark:Fade(not Watermark.Visible, 0.25)
 			end
 		end)
 
@@ -2669,16 +2657,6 @@ do
 		Functions["AddThemeRegistery"](DataFrameFill, { BackgroundColor3 = "Background 1" })
 		Functions["AddThemeRegistery"](CursorOutline, { ImageColor3 = "Border 1" })
 		Functions["AddThemeRegistery"](CursorFill, { ImageColor3 = "Accent" })
-
-		Functions["AddConnection"]("MenuFade", UserInputService.InputBegan, function(Input, Processed)
-			if Processed then
-				return
-			end
-
-			if Input.KeyCode == Enum.KeyCode.Home then
-				Menu:Fade(not Menu.Visible, 0.25)
-			end
-		end)
 
 		Functions["AddConnection"]("MouseMove", UserInputService.InputChanged, function(Input, Processed)
 			if Input.UserInputType == Enum.UserInputType.MouseMovement then
