@@ -314,7 +314,7 @@ do
 		}
 
 		local Toggle = {
-			Value = Options.Value,
+			Value = not Options.Value,
 		}
 
 		local ToggleOutline = Functions["Create"]("TextButton", {
@@ -425,7 +425,7 @@ do
 			Toggle:Set(not Toggle.Value)
 		end)
 
-		Toggle:Set(Toggle.Value)
+		Toggle:Set(Options.Value)
 
 		if Options.Flag then
 			Toggles[Options.Flag] = Toggle
