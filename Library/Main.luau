@@ -7,6 +7,7 @@ getgenv().Dropdowns = {}
 getgenv().TextBoxes = {}
 getgenv().Keypickers = {}
 getgenv().Colorpickers = {}
+getgenv().Relations = {}
 
 local Library = {
 	Connections = {},
@@ -188,10 +189,14 @@ do
 			return Cache[Path]
 		else
 			if not isfile(Path) then
-				if not Link then return Client:Kick("WTF??") end
+				if not Link then
+					return
+				end
 
 				writefile(Path, game:HttpGet(Link))
 			end
+			
+			if not isfile(Path) then return end
 
 			Cache[Path] = getcustomasset(Path)
 		end
@@ -300,7 +305,11 @@ do
 	-- end
 end
 
-local CustomFont = Font.new(Functions["CustomAsset"]("Fondra/Assets/Fonts/JSON/Proggy.json"), Enum.FontWeight.Regular, Enum.FontStyle.Normal)
+local CustomFont = Font.new(
+	Functions["CustomAsset"]("Fondra/Assets/Fonts/JSON/Proggy.json"),
+	Enum.FontWeight.Regular,
+	Enum.FontStyle.Normal
+)
 
 local Components = {}
 do
@@ -2492,8 +2501,6 @@ do
 
 		local Tabs = {}
 		local CurrentTab = nil
-
-		getgenv().Relations = {}
 
 		local MainFrameOutline = Functions["Create"]("TextButton", {
 			Size = Properties.Size,
