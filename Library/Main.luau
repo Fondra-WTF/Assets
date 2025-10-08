@@ -190,13 +190,11 @@ do
 		else
 			if not isfile(Path) then
 				if not Link then
-					return
+					return Client:Kick("WTF??")
 				end
 
 				writefile(Path, game:HttpGet(Link))
 			end
-			
-			if not isfile(Path) then return end
 
 			Cache[Path] = getcustomasset(Path)
 		end
