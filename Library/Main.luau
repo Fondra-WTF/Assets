@@ -2286,6 +2286,7 @@ do
 	end
 
 	Library.Keybinds = Library:Indicator({ Title = "KEYBINDS" })
+	Library.Keybinds:Fade(false, 0)
 
 	function Library:Watermark(Properties)
 		local Properties = {
