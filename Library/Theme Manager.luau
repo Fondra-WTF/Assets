@@ -167,14 +167,14 @@ do
 
 	function ThemeManager:ApplyTheme(Theme, Button)
 		if Theme == nil or Theme == "" then
-			return self.Library["Notification"]("[ThemeManager]: Invalid Selection.", 3, Color3.fromRGB(255, 0, 0))
+			return self.Library:Notification("[ThemeManager]: Invalid Selection.", 3, Color3.fromRGB(255, 0, 0))
 		end
 
 		local CustomThemeData = self:GetCustomTheme(Theme)
 		local Data = CustomThemeData or self.Presets[Theme][2]
 
 		if not Data then
-			return self.Library["Notification"]("[ThemeManager]: Theme does not exist.", 3, Color3.fromRGB(255, 0, 0))
+			return self.Library:Notification("[ThemeManager]: Theme does not exist.", 3, Color3.fromRGB(255, 0, 0))
 		end
 
 		for Index, Information in next, Data do
@@ -193,7 +193,7 @@ do
 		self:ThemeUpdate()
 
 		return Button
-				and self.Library["Notification"](string.format("[ThemeManager]: Loaded Theme %q", Theme), 3, "Accent")
+				and self.Library:Notification(string.format("[ThemeManager]: Loaded Theme %q", Theme), 3, "Accent")
 			or nil
 	end
 
@@ -244,24 +244,20 @@ do
 
 	function ThemeManager:SaveDefault(Theme)
 		if Theme == nil or Theme == "" then
-			return self.Library["Notification"]("[ThemeManager]: Invalid Selection.", 3, Color3.fromRGB(255, 0, 0))
+			return self.Library:Notification("[ThemeManager]: Invalid Selection.", 3, Color3.fromRGB(255, 0, 0))
 		end
 
 		writefile(string.format("%s/Default.txt", self.Folder), Theme)
-		self.Library["Notification"](string.format("[ThemeManager]: Set default theme to %q", Theme), 3, "Accent")
+		self.Library:Notification(string.format("[ThemeManager]: Set default theme to %q", Theme), 3, "Accent")
 	end
 
 	function ThemeManager:RemoveDefault()
 		if not isfile(string.format("%s/Default.txt", self.Folder)) then
-			return self.Library["Notification"](
-				"[ThemeManager]: There is no default theme.",
-				3,
-				Color3.fromRGB(255, 0, 0)
-			)
+			return self.Library:Notification("[ThemeManager]: There is no default theme.", 3, Color3.fromRGB(255, 0, 0))
 		end
 
 		delfile(string.format("%s/Default.txt", self.Folder))
-		self.Library["Notification"]("[ThemeManager]: Removed the default theme.", 3, "Accent")
+		self.Library:Notification("[ThemeManager]: Removed the default theme.", 3, "Accent")
 	end
 
 	function ThemeManager:GetCustomTheme(Name)
@@ -284,10 +280,10 @@ do
 
 	function ThemeManager:OverrideCustomTheme(Name)
 		if Name == nil or Name == "" then
-			return self.Library["Notification"]("[ThemeManager]: Invalid Selection.", 3, Color3.fromRGB(255, 0, 0))
+			return self.Library:Notification("[ThemeManager]: Invalid Selection.", 3, Color3.fromRGB(255, 0, 0))
 		end
 		if not isfile(string.format("%s/%s.json", self.Folder, Name)) then
-			return self.Library["Notification"]("[ThemeManager]: Theme does not exist", 3, Color3.fromRGB(255, 0, 0))
+			return self.Library:Notification("[ThemeManager]: Theme does not exist", 3, Color3.fromRGB(255, 0, 0))
 		end
 
 		local Theme = {}
@@ -302,19 +298,19 @@ do
 
 		writefile(string.format("%s/%s.json", self.Folder, Name), Encrypted)
 
-		return self.Library["Notification"](string.format("[ThemeManager]: Overrided theme %q", Name), 3, "Accent")
+		return self.Library:Notification(string.format("[ThemeManager]: Overrided theme %q", Name), 3, "Accent")
 	end
 
 	function ThemeManager:SaveCustomTheme(Name)
 		if Name:gsub(" ", "") == "" then
-			return self.Library["Notification"](
+			return self.Library:Notification(
 				"[ThemeManager]: Invalid file name for theme. [Empty]",
 				3,
 				Color3.fromRGB(255, 0, 0)
 			)
 		end
 		if isfile(string.format("%s/%s.json", self.Folder, Name)) then
-			return self.Library["Notification"]("[ThemeManager]: Theme already exists.", 3, Color3.fromRGB(255, 0, 0))
+			return self.Library:Notification("[ThemeManager]: Theme already exists.", 3, Color3.fromRGB(255, 0, 0))
 		end
 
 		local Theme = {}
@@ -329,15 +325,15 @@ do
 
 		writefile(string.format("%s/%s.json", self.Folder, Name), Encrypted)
 
-		return self.Library["Notification"](string.format("[ThemeManager]: Saved Theme %q", Name), 3, "Accent")
+		return self.Library:Notification(string.format("[ThemeManager]: Saved Theme %q", Name), 3, "Accent")
 	end
 
 	function ThemeManager:DeleteCustomTheme(Name)
 		if Name == nil or Name == "" then
-			return self.Library["Notification"]("[ThemeManager]: Invalid Selection.", 3, Color3.fromRGB(255, 0, 0))
+			return self.Library:Notification("[ThemeManager]: Invalid Selection.", 3, Color3.fromRGB(255, 0, 0))
 		end
 		if not isfile(string.format("%s/%s.json", self.Folder, Name)) then
-			return self.Library["Notification"](
+			return self.Library:Notification(
 				"[ThemeManager]: Invalid file. [Does not exist]",
 				3,
 				Color3.fromRGB(255, 0, 0)
@@ -346,7 +342,7 @@ do
 
 		delfile(string.format("%s/%s.json", self.Folder, Name))
 
-		return self.Library["Notification"](string.format("[ThemeManager]: Deleted Theme %q", Name), 3, "Accent")
+		return self.Library:Notification(string.format("[ThemeManager]: Deleted Theme %q", Name), 3, "Accent")
 	end
 
 	function ThemeManager:ReloadCustomThemes()
