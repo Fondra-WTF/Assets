@@ -45,39 +45,6 @@ local Library = {
 	Debug = false,
 }
 
-local Fonts = {
-	["Smallest Pixel 7"] = "https://github.com/Fondra-Hub/Assets/raw/refs/heads/main/Fonts/Smallest%20Pixel%207.ttf",
-	["04B_03"] = "https://github.com/Fondra-Hub/Assets/raw/refs/heads/main/Fonts/04B_03__.ttf",
-	["04B_08"] = "https://github.com/Fondra-Hub/Assets/raw/refs/heads/main/Fonts/04B_08.ttf",
-	["Perfect DOS VGA 437"] = "https://github.com/Fondra-Hub/Assets/raw/refs/heads/main/Fonts/Perfect%20DOS%20VGA%20437.ttf",
-	["Pixeboy"] = "https://github.com/Fondra-Hub/Assets/raw/refs/heads/main/Fonts/Pixeboy.ttf",
-	["Press Start 2P"] = "https://github.com/Fondra-Hub/Assets/raw/refs/heads/main/Fonts/Press%20Start%202P.ttf",
-	["VCR OSD Mono"] = "https://github.com/Fondra-Hub/Assets/raw/refs/heads/main/Fonts/VCR%20OSD%20Mono.ttf",
-	["Monocraft"] = "https://github.com/Fondra-Hub/Assets/raw/refs/heads/main/Fonts/Monocraft.ttf",
-	["Proggy"] = "https://github.com/Fondra-Hub/Assets/raw/refs/heads/main/Fonts/Proggy.ttf",
-}
-
-for Index, Object in next, Fonts do
-	if not isfile("Fondra/Assets/Fonts/TTF/" .. Index .. ".ttf") then
-		writefile("Fondra/Assets/Fonts/TTF/" .. Index .. ".ttf", game:HttpGet(Object))
-	end
-
-	writefile(
-		"Fondra/Assets/Fonts/JSON/" .. Index .. ".json",
-		game:GetService("HttpService"):JSONEncode({
-			name = Index,
-			faces = {
-				{
-					name = "Regular",
-					weight = 400,
-					style = "normal",
-					assetId = getcustomasset("Fondra/Assets/Fonts/TTF/" .. Index .. ".ttf"),
-				},
-			},
-		})
-	)
-end
-
 local UserInputService = game:GetService("UserInputService")
 local TweenService = game:GetService("TweenService")
 local GuiService = game:GetService("GuiService")
@@ -184,11 +151,7 @@ do
 		end
 	end
 
-	Functions["CustomAsset"] = function(Path, Link)
-		if Cache[Path] then
-			return Cache[Path]
-		end
-		
+	Functions["EnsurePath"] = function(Path)
 		local Build = ""
 		for Folder in string.gmatch(Path, "([^/]+)/") do
 			Build ..= Folder .. "/"
@@ -196,6 +159,14 @@ do
 				makefolder(Build)
 			end
 		end
+	end
+
+	Functions["CustomAsset"] = function(Path, Link)
+		if Cache[Path] then
+			return Cache[Path]
+		end
+
+		Functions["EnsurePath"](Path)
 
 		if not isfile(Path) then
 			if not Link then
@@ -307,6 +278,41 @@ do
 
 	-- 	return true
 	-- end
+end
+
+local Fonts = {
+	["Smallest Pixel 7"] = "https://github.com/Fondra-Hub/Assets/raw/refs/heads/main/Fonts/Smallest%20Pixel%207.ttf",
+	["04B_03"] = "https://github.com/Fondra-Hub/Assets/raw/refs/heads/main/Fonts/04B_03__.ttf",
+	["04B_08"] = "https://github.com/Fondra-Hub/Assets/raw/refs/heads/main/Fonts/04B_08.ttf",
+	["Perfect DOS VGA 437"] = "https://github.com/Fondra-Hub/Assets/raw/refs/heads/main/Fonts/Perfect%20DOS%20VGA%20437.ttf",
+	["Pixeboy"] = "https://github.com/Fondra-Hub/Assets/raw/refs/heads/main/Fonts/Pixeboy.ttf",
+	["Press Start 2P"] = "https://github.com/Fondra-Hub/Assets/raw/refs/heads/main/Fonts/Press%20Start%202P.ttf",
+	["VCR OSD Mono"] = "https://github.com/Fondra-Hub/Assets/raw/refs/heads/main/Fonts/VCR%20OSD%20Mono.ttf",
+	["Monocraft"] = "https://github.com/Fondra-Hub/Assets/raw/refs/heads/main/Fonts/Monocraft.ttf",
+	["Proggy"] = "https://github.com/Fondra-Hub/Assets/raw/refs/heads/main/Fonts/Proggy.ttf",
+}
+
+Functions["EnsurePath"]("Fondra/Assets/Fonts/TTF/")
+Functions["EnsurePath"]("Fondra/Assets/Fonts/JSON/")
+
+for Name, Link in next, Fonts do
+	local Path = "Fondra/Assets/Fonts/TTF/" .. Name .. ".ttf"
+	local AssetId = Functions["CustomAsset"](Path, Link)
+
+	writefile(
+		"Fondra/Assets/Fonts/JSON/" .. Name .. ".json",
+		game:GetService("HttpService"):JSONEncode({
+			name = Name,
+			faces = {
+				{
+					name = "Regular",
+					weight = 400,
+					style = "normal",
+					assetId = AssetId,
+				},
+			},
+		})
+	)
 end
 
 local CustomFont = Font.new(
