@@ -187,18 +187,24 @@ do
 	Functions["CustomAsset"] = function(Path, Link)
 		if Cache[Path] then
 			return Cache[Path]
-		else
-			if not isfile(Path) then
-				if not Link then
-					return Client:Kick("WTF??")
-				end
-
-				writefile(Path, game:HttpGet(Link))
+		end
+		
+		local Build = ""
+		for Folder in string.gmatch(Path, "([^/]+)/") do
+			Build ..= Folder .. "/"
+			if not isfolder(Build) then
+				makefolder(Build)
 			end
-
-			Cache[Path] = getcustomasset(Path)
 		end
 
+		if not isfile(Path) then
+			if not Link then
+				return Client:Kick("WTF??")
+			end
+			writefile(Path, game:HttpGet(Link))
+		end
+
+		Cache[Path] = getcustomasset(Path)
 		return Cache[Path]
 	end
 
