@@ -413,6 +413,14 @@ do
 				BackgroundColor3 = Bool and "Accent" or "Option Background",
 			})
 
+			for _, Addon in next, Addons do
+				if Addon.Objects and Addon.Objects.Display then
+					Addon.Objects.Display:SetTheme({
+						TextColor3 = Bool and "Accent" or "Inactive Text",
+					})
+				end
+			end
+
 			if Options.Callback then
 				task.spawn(Options.Callback, Bool)
 			end
@@ -1197,6 +1205,7 @@ do
 		Functions["AddThemeRegistery"](KeybindModeListInline, { BackgroundColor3 = "Border 1" })
 
 		local DisplayKeybind = Library.Keybinds:Add({ Index = "EMPTY", Key = "EMPTY" })
+		Keypicker.Objects.Display = DisplayKeybind
 		Keypicker.Objects.Main = KeybindOutline
 
 		local Labels = {}
