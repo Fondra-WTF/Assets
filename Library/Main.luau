@@ -1124,7 +1124,7 @@ do
 		local Options = {
 			Text = Options.Text or "KEY",
 			Side = Options.Side or "LEFT",
-			Display = Options.Display == false and false or true,
+			Display = Options.Display ~= false,
 			Flag = Options.Flag,
 			Callback = Options.Callback,
 			Input = Options.Input or Enum.KeyCode.E,
