@@ -1171,7 +1171,7 @@ do
 		[Enum.KeyCode.Escape] = "ESC",
 		[Enum.KeyCode.Space] = "SPC",
 	}
-	
+
 	Components["Keypicker"] = function(Holder, Options, Parent)
 		local Options = {
 			Text = Options.Text or "KEY",
@@ -1258,6 +1258,7 @@ do
 		local DisplayKeybind = Library.Keybinds:Add({ Index = "EMPTY", Key = "EMPTY" })
 		Keypicker.Objects.Display = DisplayKeybind
 		Keypicker.Objects.Main = KeybindOutline
+		DisplayKeybind:SetIndex(Options.Text)
 
 		local Labels = {}
 		for Index, Value in next, { "HOLD", "TOGGLE" } do
@@ -1311,7 +1312,6 @@ do
 				DisplayKeybind:SetVisible(Options.Display)
 			end
 
-			DisplayKeybind:SetIndex(Options.Text)
 			DisplayKeybind:SetValue(Display)
 			for Index, Object in next, Labels do
 				Functions["UpdateThemeRegistery"](
