@@ -1311,7 +1311,7 @@ do
 				DisplayKeybind:SetVisible(Options.Display)
 			end
 
-			DisplayKeybind:SetIndex(self.Text)
+			DisplayKeybind:SetIndex(Options.Text)
 			DisplayKeybind:SetValue(Display)
 			for Index, Object in next, Labels do
 				Functions["UpdateThemeRegistery"](
