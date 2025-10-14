@@ -1,6 +1,4 @@
--- ! Powered by ChatGPT, Made by QwenAI, Double Checked by DeepseekAI and quadruple checked by GeminiAI
--- ? Only the best, Made by AI😱
-
+-- ! Main
 getgenv().Toggles = {}
 getgenv().Sliders = {}
 getgenv().Dropdowns = {}
@@ -1120,6 +1118,60 @@ do
 		return Label
 	end
 
+	local Keys = {
+		[Enum.KeyCode.LeftShift] = "LS",
+		[Enum.KeyCode.RightShift] = "RS",
+		[Enum.KeyCode.LeftControl] = "LC",
+		[Enum.KeyCode.RightControl] = "RC",
+		[Enum.KeyCode.Insert] = "INS",
+		[Enum.KeyCode.Backspace] = "BS",
+		[Enum.KeyCode.Return] = "Ent",
+		[Enum.KeyCode.LeftAlt] = "LA",
+		[Enum.KeyCode.RightAlt] = "RA",
+		[Enum.KeyCode.CapsLock] = "CAPS",
+		[Enum.KeyCode.One] = "1",
+		[Enum.KeyCode.Two] = "2",
+		[Enum.KeyCode.Three] = "3",
+		[Enum.KeyCode.Four] = "4",
+		[Enum.KeyCode.Five] = "5",
+		[Enum.KeyCode.Six] = "6",
+		[Enum.KeyCode.Seven] = "7",
+		[Enum.KeyCode.Eight] = "8",
+		[Enum.KeyCode.Nine] = "9",
+		[Enum.KeyCode.Zero] = "0",
+		[Enum.KeyCode.KeypadOne] = "Num1",
+		[Enum.KeyCode.KeypadTwo] = "Num2",
+		[Enum.KeyCode.KeypadThree] = "Num3",
+		[Enum.KeyCode.KeypadFour] = "Num4",
+		[Enum.KeyCode.KeypadFive] = "Num5",
+		[Enum.KeyCode.KeypadSix] = "Num6",
+		[Enum.KeyCode.KeypadSeven] = "Num7",
+		[Enum.KeyCode.KeypadEight] = "Num8",
+		[Enum.KeyCode.KeypadNine] = "Num9",
+		[Enum.KeyCode.KeypadZero] = "Num0",
+		[Enum.KeyCode.Minus] = "-",
+		[Enum.KeyCode.Equals] = "=",
+		[Enum.KeyCode.Tilde] = "~",
+		[Enum.KeyCode.LeftBracket] = "[",
+		[Enum.KeyCode.RightBracket] = "]",
+		[Enum.KeyCode.RightParenthesis] = ")",
+		[Enum.KeyCode.LeftParenthesis] = "(",
+		[Enum.KeyCode.Semicolon] = ";",
+		[Enum.KeyCode.Quote] = "'",
+		[Enum.KeyCode.BackSlash] = "\\",
+		[Enum.KeyCode.Comma] = ",",
+		[Enum.KeyCode.Period] = ".",
+		[Enum.KeyCode.Slash] = "/",
+		[Enum.KeyCode.Asterisk] = "*",
+		[Enum.KeyCode.Plus] = "+",
+		[Enum.KeyCode.Backquote] = "`",
+		[Enum.UserInputType.MouseButton1] = "MB1",
+		[Enum.UserInputType.MouseButton2] = "MB2",
+		[Enum.UserInputType.MouseButton3] = "MB3",
+		[Enum.KeyCode.Escape] = "ESC",
+		[Enum.KeyCode.Space] = "SPC",
+	}
+	
 	Components["Keypicker"] = function(Holder, Options, Parent)
 		local Options = {
 			Text = Options.Text or "KEY",
@@ -1132,7 +1184,6 @@ do
 		}
 
 		local Keypicker = {
-			Text = Options.Text,
 			Input = Options.Input,
 			Mode = Options.Mode,
 			Objects = {},
@@ -1163,7 +1214,7 @@ do
 		})
 		local KeybindLabel = Functions["Create"]("TextLabel", {
 			Parent = KeybindFill,
-			Text = UserInputService:GetStringForKeyCode(Keypicker.Input) or "UNKNOWN",
+			Text = Keys[Keypicker.Input] or UserInputService:GetStringForKeyCode(Keypicker.Input) or "UNKNOWN",
 			Position = UDim2.new(0.5, 0, 0.5, 0),
 			AnchorPoint = Vector2.new(0.5, 0.5),
 			TextXAlignment = Enum.TextXAlignment.Center,
@@ -1243,8 +1294,13 @@ do
 		end
 
 		function Keypicker:Set(Input, Mode)
-			local Display = (Input.Name == "Unknown" or Input.Name == "Delete") and "-"
-				or UserInputService:GetStringForKeyCode(Input)
+			local Display = Keys[Input]
+				or (Input.EnumType == Enum.KeyCode and UserInputService:GetStringForKeyCode(Input))
+				or "UNKNOWN"
+			if Display == "UNKNOWN" or Display == "" or Input.Name == "Unknown" or Input.Name == "Delete" then
+				Display = "-"
+			end
+
 			KeybindLabel.Text = Display
 			self.Input = Input
 			self.Mode = Mode
@@ -1332,20 +1388,25 @@ do
 
 			local Connection
 			Connection = Functions["AddConnection"](nil, UserInputService.InputBegan, function(Input)
-				Debounce = false
+				local IsMouseButton = Input.UserInputType == Enum.UserInputType.MouseButton1
+					or Input.UserInputType == Enum.UserInputType.MouseButton2
+					or Input.UserInputType == Enum.UserInputType.MouseButton3
+				local IsKeyCode = Input.KeyCode ~= Enum.KeyCode.Unknown
 
-				if
-					UserInputService:GetStringForKeyCode(Input.KeyCode) == ""
-					and Input.KeyCode ~= Enum.KeyCode.Delete
-				then
+				if not IsMouseButton and not IsKeyCode then
 					return
 				end
 
+				Debounce = false
+
 				if Input.KeyCode == Enum.KeyCode.Delete then
 					Keypicker:Set(Enum.KeyCode.Unknown, Keypicker.Mode)
-				elseif Input.KeyCode ~= Enum.KeyCode.Unknown then
+				elseif IsMouseButton then
+					Keypicker:Set(Input.UserInputType, Keypicker.Mode)
+				elseif IsKeyCode then
 					Keypicker:Set(Input.KeyCode, Keypicker.Mode)
 				end
+
 				Functions["RemoveConnection"](Connection)
 			end)
 		end)
@@ -1354,25 +1415,28 @@ do
 			if Processed then
 				return
 			end
-			if Input.KeyCode == Enum.KeyCode.Unknown then
+
+			local InputMatch = false
+			if Keypicker.Input.EnumType == Enum.KeyCode then
+				InputMatch = Input.KeyCode == Keypicker.Input
+			elseif Keypicker.Input.EnumType == Enum.UserInputType then
+				InputMatch = Input.UserInputType == Keypicker.Input
+			end
+
+			if not InputMatch then
 				return
 			end
-			if Input.KeyCode == Keypicker.Input then
-				if Keypicker.Mode == "TOGGLE" then
-					local NEW = not Parent.Value
-					Parent:Set(NEW)
-					DisplayKeybind:SetTheme({ TextColor3 = NEW and "Accent" or "Inactive Text" })
-				elseif Keypicker.Mode == "HOLD" then
-					Parent:Set(true)
-					DisplayKeybind:SetTheme({ TextColor3 = "Accent" })
-				end
-				if Options.Callback then
-					task.spawn(Options.Callback, {
-						Input = Keypicker.Input,
-						Mode = Keypicker.Mode,
-						State = (Keypicker.Mode == "TOGGLE" and Parent.Value) or true,
-					})
-				end
+
+			if Keypicker.Mode == "TOGGLE" then
+				local NEW = not Parent.Value
+				Parent:Set(NEW)
+				DisplayKeybind:SetTheme({ TextColor3 = NEW and "Accent" or "Inactive Text" })
+			elseif Keypicker.Mode == "HOLD" then
+				Parent:Set(true)
+				DisplayKeybind:SetTheme({ TextColor3 = "Accent" })
+			end
+			if Options.Callback then
+				task.spawn(Options.Callback, { Input = Keypicker.Input, Mode = Keypicker.Mode })
 			end
 		end)
 
@@ -1380,11 +1444,19 @@ do
 			if Input.KeyCode == Enum.KeyCode.Delete then
 				return
 			end
-			if Input.KeyCode == Keypicker.Input and Keypicker.Mode == "HOLD" then
+
+			local InputMatch = false
+			if Keypicker.Input.EnumType == Enum.KeyCode then
+				InputMatch = Input.KeyCode == Keypicker.Input
+			elseif Keypicker.Input.EnumType == Enum.UserInputType then
+				InputMatch = Input.UserInputType == Keypicker.Input
+			end
+
+			if InputMatch and Keypicker.Mode == "HOLD" then
 				Parent:Set(false)
 				DisplayKeybind:SetTheme({ TextColor3 = "Inactive Text" })
 				if Options.Callback then
-					task.spawn(Options.Callback, { Input = Keypicker.Input, Mode = Keypicker.Mode, State = false })
+					task.spawn(Options.Callback, { Input = Keypicker.Input, Mode = Keypicker.Mode })
 				end
 			end
 		end)
