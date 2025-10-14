@@ -1303,8 +1303,8 @@ do
 			end
 
 			KeybindLabel.Text = Display
-			self.Input = Input
-			self.Mode = Mode
+			Keypicker.Input = Input
+			Keypicker.Mode = Mode
 
 			if Display == "-" then
 				DisplayKeybind:SetVisible(false)
@@ -1316,17 +1316,17 @@ do
 			for Index, Object in next, Labels do
 				Functions["UpdateThemeRegistery"](
 					Object,
-					{ TextColor3 = self.Mode == Index and "Accent" or "Inactive Text" }
+					{ TextColor3 = Keypicker.Mode == Index and "Accent" or "Inactive Text" }
 				)
 			end
 
 			if Options.Callback then
-				task.spawn(Options.Callback, { Input = self.Input, Mode = self.Mode })
+				task.spawn(Options.Callback, { Input = Keypicker.Input, Mode = Keypicker.Mode })
 			end
 		end
 
 		function Keypicker:Get()
-			return { Input = self.Input, Mode = self.Mode }
+			return { Input = Keypicker.Input, Mode = Keypicker.Mode }
 		end
 
 		function Keypicker:Callback(Function)
