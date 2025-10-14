@@ -413,9 +413,11 @@ do
 
 			for _, Addon in next, Addons do
 				if Addon.Objects and Addon.Objects.Display then
-					Addon.Objects.Display:SetTheme({
-						TextColor3 = Bool and "Accent" or "Inactive Text",
-					})
+					if Addon.Objects.Sync == true then
+						Addon.Objects.Display:SetTheme({
+							TextColor3 = Bool and "Accent" or "Inactive Text",
+						})
+					end
 				end
 			end
 
@@ -1170,7 +1172,6 @@ do
 		[Enum.UserInputType.MouseButton3] = "MB3",
 		[Enum.KeyCode.Escape] = "ESC",
 		[Enum.KeyCode.Space] = "SPC",
-		[Enum.KeyCode.Delete] = "-",
 	}
 
 	Components["Keypicker"] = function(Holder, Options, Parent)
@@ -1182,13 +1183,20 @@ do
 			Callback = Options.Callback,
 			Input = Options.Input or Enum.KeyCode.E,
 			Mode = Options.Mode or "TOGGLE",
+			Menu = Options.Menu ~= false,
+			Sync = Options.Sync ~= false,
 		}
 
 		local Keypicker = {
 			Input = Options.Input,
 			Mode = Options.Mode,
+			Value = false,
 			Objects = {},
 		}
+
+		if Options.Sync == true then
+			Keypicker.Objects.Sync = true
+		end
 
 		local KeybindOutline = Functions["Create"]("TextButton", {
 			Size = UDim2.new(0, 30, 0, 16),
@@ -1215,7 +1223,9 @@ do
 		})
 		local KeybindLabel = Functions["Create"]("TextLabel", {
 			Parent = KeybindFill,
-			Text = Keys[Keypicker.Input] or UserInputService:GetStringForKeyCode(Keypicker.Input) or "UNKNOWN",
+			Text = Keys[Keypicker.Input]
+				or (Keypicker.Input.EnumType == Enum.KeyCode and UserInputService:GetStringForKeyCode(Keypicker.Input))
+				or "UNKNOWN",
 			Position = UDim2.new(0.5, 0, 0.5, 0),
 			AnchorPoint = Vector2.new(0.5, 0.5),
 			TextXAlignment = Enum.TextXAlignment.Center,
@@ -1230,6 +1240,7 @@ do
 			Position = UDim2.new(1, 2, 0, 0),
 			Parent = ComponentsGUI,
 			Visible = false,
+			Name = "KEYPICKER",
 		})
 		local KeybindModeListMiddle = Functions["Create"]("Frame", {
 			Size = UDim2.new(1, -2, 1, -2),
@@ -1287,40 +1298,54 @@ do
 			)
 			Labels[Value] = ModeLabel
 			Functions["AddConnection"](nil, ModeFrame.MouseButton1Down, function()
+				if not Options.Menu then
+					return
+				end
 				Keypicker:Set(Keypicker.Input, Value)
 			end)
 		end
 
 		function Keypicker:Set(Input, Mode)
 			local Display = Keys[Input]
-				or (Input.EnumType == Enum.KeyCode and UserInputService:GetStringForKeyCode(Input))
+				or (Input and Input.EnumType == Enum.KeyCode and UserInputService:GetStringForKeyCode(Input))
 				or "UNKNOWN"
-			if Display == "UNKNOWN" or Display == "" then
+
+			if Display == "UNKNOWN" or Display == "" or Display == "-" then
 				Display = "-"
+				Keypicker.Input = nil
+			else
+				Keypicker.Input = Input
 			end
+
 			KeybindLabel.Text = Display
-			Keypicker.Input = Input
 			Keypicker.Mode = Mode
+
 			if Display == "-" then
 				DisplayKeybind:SetVisible(false)
 			else
 				DisplayKeybind:SetVisible(Options.Display)
 			end
+
 			DisplayKeybind:SetIndex(Options.Text)
 			DisplayKeybind:SetValue(Display)
-			for Index, Object in next, Labels do
+
+			for Id, Object in next, Labels do
 				Functions["UpdateThemeRegistery"](
 					Object,
-					{ TextColor3 = Keypicker.Mode == Index and "Accent" or "Inactive Text" }
+					{ TextColor3 = Keypicker.Mode == Id and "Accent" or "Inactive Text" }
 				)
 			end
+
 			if Options.Callback then
-				task.spawn(Options.Callback, { Input = Keypicker.Input, Mode = Keypicker.Mode })
+				task.spawn(
+					Options.Callback,
+					{ Input = Keypicker.Input, Mode = Keypicker.Mode, Value = Keypicker.Value }
+				)
 			end
 		end
 
 		function Keypicker:Get()
-			return { Input = Keypicker.Input, Mode = Keypicker.Mode }
+			return { Input = Keypicker.Input, Mode = Keypicker.Mode, Value = Keypicker.Value }
 		end
 
 		function Keypicker:Callback(Function)
@@ -1339,7 +1364,6 @@ do
 				if Processed then
 					return
 				end
-
 				if
 					Input.UserInputType == Enum.UserInputType.MouseButton1
 					or Input.UserInputType == Enum.UserInputType.MouseButton2
@@ -1353,29 +1377,74 @@ do
 					else
 						ChosenInput = Input.KeyCode
 					end
-
 					Keypicker:Set(ChosenInput, Keypicker.Mode)
 					Functions["RemoveConnection"]("KeypickerSetting")
-
 					task.wait()
-
 					SettingKeybind = false
 				end
 			end)
 		end)
 
-		Functions["AddConnection"](nil, KeybindOutline.MouseButton2Down, function()
-			KeybindModeListOutline.Visible = not KeybindModeListOutline.Visible
-			local AbsolutePosition = KeybindOutline.AbsolutePosition + GuiService:GetGuiInset()
-			KeybindModeListOutline.Position = UDim2.new(0, AbsolutePosition.X + 32, 0, AbsolutePosition.Y)
-		end)
+		if Options.Menu then
+			local Try = 0
+			Functions["AddConnection"](nil, KeybindOutline.MouseButton2Down, function()
+				KeybindModeListOutline.Visible = not KeybindModeListOutline.Visible
+				local AbsolutePosition = KeybindOutline.AbsolutePosition + GuiService:GetGuiInset()
+				KeybindModeListOutline.Position = UDim2.new(0, AbsolutePosition.X + 32, 0, AbsolutePosition.Y)
+				Try = 0
+			end)
+
+			Functions["AddConnection"](nil, UserInputService.InputBegan, function(Input)
+				if
+					Input.UserInputType ~= Enum.UserInputType.MouseButton1
+					and Input.UserInputType ~= Enum.UserInputType.MouseButton2
+				then
+					return
+				end
+				if not KeybindModeListOutline.Visible then
+					return
+				end
+				if Try == 0 then
+					Try = 1
+					return
+				end
+				local MousePosition = UserInputService:GetMouseLocation() - GuiService:GetGuiInset()
+				local AbsolutePosition = KeybindModeListOutline.AbsolutePosition
+				local AbsoluteSize = KeybindModeListOutline.AbsoluteSize
+				local Inside = MousePosition.X >= AbsolutePosition.X
+					and MousePosition.X <= AbsolutePosition.X + AbsoluteSize.X
+					and MousePosition.Y >= AbsolutePosition.Y
+					and MousePosition.Y <= AbsolutePosition.Y + AbsoluteSize.Y
+				if not Inside then
+					for _, Component in next, ComponentsGUI:GetChildren() do
+						if Component == KeybindModeListOutline then
+							continue
+						end
+						if
+							Component.Name == "DROPDOWN"
+							or Component.Name == "COLORPICKER"
+							or Component.Name == "KEYPICKER"
+						then
+							Component.Visible = false
+						end
+					end
+					KeybindModeListOutline.Visible = false
+				end
+			end)
+
+			Functions["AddConnection"](nil, UserInputService.InputChanged, function(Input)
+				if Input.UserInputType ~= Enum.UserInputType.MouseWheel then
+					return
+				end
+				KeybindModeListOutline.Visible = false
+			end)
+		end
 
 		Functions["AddConnection"](nil, UserInputService.InputBegan, function(Input, Processed)
 			if Processed or SettingKeybind then
 				return
 			end
-
-			if not Keypicker.Input or Keypicker.Input == Enum.KeyCode.Delete or Input.KeyCode == Enum.KeyCode.Unknown then
+			if not Keypicker.Input then
 				return
 			end
 
@@ -1385,25 +1454,41 @@ do
 			elseif Keypicker.Input.EnumType == Enum.UserInputType then
 				InputMatch = Input.UserInputType == Keypicker.Input
 			end
-
 			if not InputMatch then
 				return
 			end
 
 			if Keypicker.Mode == "TOGGLE" then
-				local NewState = not Parent.Value
-				Parent:Set(NewState)
-				DisplayKeybind:SetTheme({ TextColor3 = NewState and "Accent" or "Inactive Text" })
+				if Options.Sync then
+					local NewState = not Parent.Value
+					Parent:Set(NewState)
+					DisplayKeybind:SetTheme({ TextColor3 = NewState and "Accent" or "Inactive Text" })
+				else
+					Keypicker.Value = not Keypicker.Value
+					DisplayKeybind:SetTheme({ TextColor3 = Keypicker.Value and "Accent" or "Inactive Text" })
+				end
 			elseif Keypicker.Mode == "HOLD" then
-				Parent:Set(true)
+				if Options.Sync then
+					Parent:Set(true)
+				else
+					Keypicker.Value = true
+				end
 				DisplayKeybind:SetTheme({ TextColor3 = "Accent" })
 			elseif Keypicker.Mode == "ALWAYS" then
-				Parent:Set(true)
+				if Options.Sync then
+					Parent:Set(true)
+				else
+					Keypicker.Value = true
+				end
 				DisplayKeybind:SetTheme({ TextColor3 = "Accent" })
 			end
 
 			if Options.Callback then
-				task.spawn(Options.Callback, { Input = Keypicker.Input, Mode = Keypicker.Mode })
+				task.spawn(Options.Callback, {
+					Input = Keypicker.Input,
+					Mode = Keypicker.Mode,
+					Value = Options.Sync and Parent.Value or Keypicker.Value,
+				})
 			end
 		end)
 
@@ -1411,10 +1496,7 @@ do
 			if SettingKeybind then
 				return
 			end
-			if not Keypicker.Input or Keypicker.Input == Enum.KeyCode.Delete then
-				return
-			end
-			if Input.KeyCode == Enum.KeyCode.Unknown then
+			if not Keypicker.Input then
 				return
 			end
 
@@ -1426,10 +1508,18 @@ do
 			end
 
 			if InputMatch and Keypicker.Mode == "HOLD" then
-				Parent:Set(false)
+				if Options.Sync then
+					Parent:Set(false)
+				else
+					Keypicker.Value = false
+				end
 				DisplayKeybind:SetTheme({ TextColor3 = "Inactive Text" })
 				if Options.Callback then
-					task.spawn(Options.Callback, { Input = Keypicker.Input, Mode = Keypicker.Mode })
+					task.spawn(Options.Callback, {
+						Input = Keypicker.Input,
+						Mode = Keypicker.Mode,
+						Value = Options.Sync and Parent.Value or Keypicker.Value,
+					})
 				end
 			end
 		end)
@@ -1880,7 +1970,7 @@ do
 
 			ColorpickerDropdownOutline.Visible = not ColorpickerDropdownOutline.Visible
 			local AbsolutePosition = ColorpickerOutline.AbsolutePosition + GuiService:GetGuiInset()
-			ColorpickerDropdownOutline.Position = UDim2.new(0, AbsolutePosition.X + 32, 0, AbsolutePosition.Y)
+			ColorpickerDropdownOutline.Position = UDim2.new(0, AbsolutePosition.X + 25, 0, AbsolutePosition.Y + 1)
 			Try = 0
 		end)
 
