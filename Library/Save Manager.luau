@@ -1,4 +1,4 @@
--- SaveManager.lua
+-- ! Save Manager
 local Game = game
 local Services = setmetatable({}, {
 	__index = function(Self, Service)
@@ -34,7 +34,6 @@ do
 		self.Folder:gsub("([^/]+)", function(Directory)
 			table.insert(Directories, Directory)
 		end)
-
 		for _, Directory in next, Directories do
 			local Path = table.concat(Directories, "/", 1, _)
 			if not isfolder(Path) then
@@ -46,7 +45,6 @@ do
 	function SaveManager:GetConfigList()
 		local List = listfiles(self.Folder)
 		local Output = {}
-
 		for _, File in next, List do
 			if File:sub(-5) == ".json" then
 				local Position = File:find(".json", 1, true)
@@ -80,42 +78,28 @@ do
 		return data
 	end
 
-	function SaveManager:SaveConfig(Name)
-		if not Name or Name:gsub(" ", "") == "" then
-			return self.Library:Notification("[SaveManager]: Invalid file name.", 3, Color3.fromRGB(255, 0, 0))
-		end
-
-		local Path = string.format("%s/%s.json", self.Folder, Name)
-		if isfile(Path) then
-			return self.Library:Notification("[SaveManager]: Config already exists.", 3, Color3.fromRGB(255, 0, 0))
-		end
-
+	function SaveManager:BuildConfigData()
 		local Config = {}
-
 		for Index, Toggle in next, Toggles do
 			if not self.Ignore[Index] then
 				Config[Index] = { Type = "Toggle", Value = Toggle.Value }
 			end
 		end
-
 		for Index, Slider in next, Sliders do
 			if not self.Ignore[Index] then
 				Config[Index] = { Type = "Slider", Value = Slider.Current }
 			end
 		end
-
 		for Index, Dropdown in next, Dropdowns do
 			if not self.Ignore[Index] then
 				Config[Index] = { Type = "Dropdown", Value = Dropdown.Current }
 			end
 		end
-
 		for Index, TextBox in next, TextBoxes do
 			if not self.Ignore[Index] then
 				Config[Index] = { Type = "TextBox", Value = TextBox.Text }
 			end
 		end
-
 		for Index, Keypicker in next, Keypickers do
 			if not self.Ignore[Index] then
 				local InputName = Keypicker.Input and Keypicker.Input.Name or nil
@@ -130,7 +114,6 @@ do
 				}
 			end
 		end
-
 		for Index, Colorpicker in next, Colorpickers do
 			if not self.Ignore[Index] then
 				local Data = Colorpicker:Get()
@@ -144,31 +127,38 @@ do
 				}
 			end
 		end
+		return Config
+	end
 
+	function SaveManager:SaveConfig(Name)
+		if not Name or Name:gsub(" ", "") == "" then
+			return self.Library:Notification("[SaveManager]: Invalid file name.", 3, Color3.fromRGB(255, 0, 0))
+		end
+		local Path = string.format("%s/%s.json", self.Folder, Name)
+		if isfile(Path) then
+			return self.Library:Notification("[SaveManager]: Config already exists.", 3, Color3.fromRGB(255, 0, 0))
+		end
+		local Config = self:BuildConfigData()
 		local Encoded = Encode(Config)
 		if not Encoded then
 			return self.Library:Notification("[SaveManager]: Failed to encode config.", 3, Color3.fromRGB(255, 0, 0))
 		end
-
 		writefile(Path, Encoded)
-		return self.Library:Notification(string.format("[SaveManager]: Saved Config %q", Name), 3, "Accent")
+		self.Library:Notification(string.format("[SaveManager]: Saved Config %q", Name), 3, "Accent")
 	end
 
 	function SaveManager:LoadConfig(Name, Notify)
 		if not Name or Name == "" then
 			return self.Library:Notification("[SaveManager]: Invalid selection.", 3, Color3.fromRGB(255, 0, 0))
 		end
-
 		local Path = string.format("%s/%s.json", self.Folder, Name)
 		if not isfile(Path) then
 			return self.Library:Notification("[SaveManager]: Config not found.", 3, Color3.fromRGB(255, 0, 0))
 		end
-
 		local Data = Decode(readfile(Path))
 		if not Data then
 			return self.Library:Notification("[SaveManager]: Failed to decode config.", 3, Color3.fromRGB(255, 0, 0))
 		end
-
 		for Index, Item in next, Data do
 			task.spawn(function()
 				if Item.Type == "Toggle" and Toggles[Index] then
@@ -196,7 +186,6 @@ do
 				end
 			end)
 		end
-
 		if Notify then
 			self.Library:Notification(string.format("[SaveManager]: Loaded Config %q", Name), 3, "Accent")
 		end
@@ -210,8 +199,12 @@ do
 		if not isfile(Path) then
 			return self.Library:Notification("[SaveManager]: Config not found.", 3, Color3.fromRGB(255, 0, 0))
 		end
-		delfile(Path)
-		self:SaveConfig(Name)
+		local Config = self:BuildConfigData()
+		local Encoded = Encode(Config)
+		if not Encoded then
+			return self.Library:Notification("[SaveManager]: Failed to encode config.", 3, Color3.fromRGB(255, 0, 0))
+		end
+		writefile(Path, Encoded)
 		self.Library:Notification(string.format("[SaveManager]: Overwrote Config %q", Name), 3, "Accent")
 	end
 
@@ -247,7 +240,6 @@ do
 	function SaveManager:LoadDefault()
 		local Path = string.format("%s/Default.txt", self.Folder)
 		if not isfile(Path) then return end
-
 		local Content = readfile(Path)
 		for _, Name in next, self:GetConfigList() do
 			if Name == Content then
@@ -274,15 +266,12 @@ do
 			"ThemeManagerCustomThemeList", "ThemeManagerCustomThemeName",
 			"SaveManagerConfigList", "SaveManagerConfigName",
 		})
-
 		local Config = Tab:Section({ Title = "Config", Side = "RIGHT" })
-
 		Config:TextBox({
 			Text = "",
 			Placeholder = "Config Name",
 			Flag = "SaveManagerConfigName",
 		})
-
 		Config:Dropdown({
 			Text = "Config List",
 			Flag = "SaveManagerConfigList",
@@ -291,7 +280,6 @@ do
 			Minimum = 0,
 			Maximum = 1,
 		})
-
 		Config:Button({
 			Text = "CREATE",
 			Result = "CREATED",
@@ -310,7 +298,6 @@ do
 					Dropdowns["SaveManagerConfigList"]:Set({})
 				end,
 			})
-
 		Config:Button({
 			Text = "LOAD",
 			Result = "LOADED",
@@ -325,7 +312,6 @@ do
 					self:OverrideConfig(Dropdowns["SaveManagerConfigList"].Current[1])
 				end,
 			})
-
 		Config:Button({
 			Text = "SAVE DEFAULT",
 			Result = "DONE",
@@ -340,7 +326,6 @@ do
 					self:RemoveDefault()
 				end,
 			})
-
 		Config:Button({
 			Text = "REFRESH LIST",
 			Result = "REFRESHED",
