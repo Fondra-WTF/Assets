@@ -1190,7 +1190,7 @@ do
 		}
 
 		local KeybindOutline = Functions["Create"]("TextButton", {
-			Size = UDim2.new(0, 22, 0, 16),
+			Size = UDim2.new(0, 26, 0, 16),
 			AnchorPoint = Vector2.new(1, 0.5),
 			Parent = Holder,
 		})
@@ -1258,7 +1258,6 @@ do
 		local DisplayKeybind = Library.Keybinds:Add({ Index = "EMPTY", Key = "EMPTY" })
 		Keypicker.Objects.Display = DisplayKeybind
 		Keypicker.Objects.Main = KeybindOutline
-		DisplayKeybind:SetIndex(Options.Text)
 
 		local Labels = {}
 		for Index, Value in next, { "HOLD", "TOGGLE" } do
@@ -1312,6 +1311,7 @@ do
 				DisplayKeybind:SetVisible(Options.Display)
 			end
 
+			DisplayKeybind:SetIndex(Options.Text)
 			DisplayKeybind:SetValue(Display)
 			for Index, Object in next, Labels do
 				Functions["UpdateThemeRegistery"](
@@ -1378,26 +1378,36 @@ do
 		end)
 
 		local Debounce = false
+		local IgnoreNextInput = false
+		local SettingBind = false
 		Functions["AddConnection"](nil, KeybindOutline.MouseButton1Down, function()
 			if Debounce then
 				return
 			end
 
 			Debounce = true
+			SettingBind = true
 			KeybindLabel.Text = "..."
 
 			local Connection
 			Connection = Functions["AddConnection"](nil, UserInputService.InputBegan, function(Input)
+				if not SettingBind then
+					return
+				end
+
 				local IsMouseButton = Input.UserInputType == Enum.UserInputType.MouseButton1
 					or Input.UserInputType == Enum.UserInputType.MouseButton2
 					or Input.UserInputType == Enum.UserInputType.MouseButton3
 				local IsKeyCode = Input.KeyCode ~= Enum.KeyCode.Unknown
+					and UserInputService:GetStringForKeyCode(Input.KeyCode) ~= ""
 
 				if not IsMouseButton and not IsKeyCode then
 					return
 				end
 
 				Debounce = false
+				SettingBind = false
+				IgnoreNextInput = true
 
 				if Input.KeyCode == Enum.KeyCode.Delete then
 					Keypicker:Set(Enum.KeyCode.Unknown, Keypicker.Mode)
@@ -1408,11 +1418,13 @@ do
 				end
 
 				Functions["RemoveConnection"](Connection)
+				task.wait()
+				IgnoreNextInput = false
 			end)
 		end)
 
 		Functions["AddConnection"](nil, UserInputService.InputBegan, function(Input, Processed)
-			if Processed then
+			if Processed or IgnoreNextInput or SettingBind then
 				return
 			end
 
@@ -1441,7 +1453,7 @@ do
 		end)
 
 		Functions["AddConnection"](nil, UserInputService.InputEnded, function(Input)
-			if Input.KeyCode == Enum.KeyCode.Delete then
+			if Input.KeyCode == Enum.KeyCode.Delete or IgnoreNextInput or SettingBind then
 				return
 			end
 
@@ -1498,7 +1510,7 @@ do
 		}
 
 		local ColorpickerOutline = Functions["Create"]("TextButton", {
-			Size = UDim2.new(0, 22, 0, 16),
+			Size = UDim2.new(0, 26, 0, 16),
 			AnchorPoint = Vector2.new(1, 0.5),
 			Parent = Holder,
 		})
