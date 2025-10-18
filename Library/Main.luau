@@ -163,17 +163,31 @@ do
 		if Cache[Path] then
 			return Cache[Path]
 		end
-
+		
 		Functions["EnsurePath"](Path)
 
 		if not isfile(Path) then
 			if not Link then
 				return Client:Kick("WTF??")
 			end
-			writefile(Path, game:HttpGet(Link))
+
+			local Success, Result = pcall(function()
+				return game:HttpGet(Link)
+			end)
+
+			if not Success then
+				return nil
+			end
+
+			if not Result or Result == "" then
+				return nil
+			end
+
+			writefile(Path, Result)
 		end
 
 		Cache[Path] = getcustomasset(Path)
+
 		return Cache[Path]
 	end
 
