@@ -959,16 +959,16 @@ do
 					end
 					State = "PRESSED"
 					ButtonTextLabel.Text = Options.Result
-					Functions["UpdateThemeRegistery"](ButtonTextLabel, { TextColor3 = "Accent" })
+					Functions["UpdateThemeRegistery"](ButtonTextLabel, { TextColor3 = "Accent", BackgroundColor3 = "Option Background" })
 					task.spawn(function()
 						task.wait(1)
 						ButtonTextLabel.Text = Options.Text
-						Functions["UpdateThemeRegistery"](ButtonTextLabel, { TextColor3 = "Active Text" })
+						Functions["UpdateThemeRegistery"](ButtonTextLabel, { TextColor3 = "Active Text", BackgroundColor3 = "Option Background" })
 						State = nil
 					end)
 				else
 					State = tick()
-					Functions["UpdateThemeRegistery"](ButtonTextLabel, { TextColor3 = "Accent" })
+					Functions["UpdateThemeRegistery"](ButtonTextLabel, { TextColor3 = "Accent", BackgroundColor3 = "Option Background" })
 					task.spawn(function()
 						for i = 1, 200 do
 							if not State or State == "PRESSED" then
@@ -983,7 +983,7 @@ do
 						end
 						if State and State ~= "PRESSED" then
 							ButtonTextLabel.Text = Options.Text
-							Functions["UpdateThemeRegistery"](ButtonTextLabel, { TextColor3 = "Active Text" })
+							Functions["UpdateThemeRegistery"](ButtonTextLabel, { TextColor3 = "Active Text", BackgroundColor3 = "Option Background" })
 							State = nil
 						end
 					end)
@@ -993,11 +993,11 @@ do
 					task.spawn(Options.Callback)
 				end
 				ButtonTextLabel.Text = Options.Result
-				Functions["UpdateThemeRegistery"](ButtonTextLabel, { TextColor3 = "Accent" })
+				Functions["UpdateThemeRegistery"](ButtonTextLabel, { TextColor3 = "Accent", BackgroundColor3 = "Option Background" })
 				task.spawn(function()
 					task.wait(1)
 					ButtonTextLabel.Text = Options.Text
-					Functions["UpdateThemeRegistery"](ButtonTextLabel, { TextColor3 = "Active Text" })
+					Functions["UpdateThemeRegistery"](ButtonTextLabel, { TextColor3 = "Active Text", BackgroundColor3 = "Option Background" })
 				end)
 			end
 		end)

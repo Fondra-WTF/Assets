@@ -102,11 +102,23 @@ do
 		end
 		for Index, Keypicker in next, Keypickers do
 			if not self.Ignore[Index] then
-				local InputName = Keypicker.Input and Keypicker.Input.Name or nil
+				local InputName = nil
+				local InputType = nil
+				
+				if Keypicker.Input then
+					InputName = Keypicker.Input.Name
+					if Keypicker.Input.EnumType == Enum.KeyCode then
+						InputType = "KeyCode"
+					elseif Keypicker.Input.EnumType == Enum.UserInputType then
+						InputType = "UserInputType"
+					end
+				end
+				
 				Config[Index] = {
 					Type = "Keypicker",
 					Value = {
 						Input = InputName,
+						InputType = InputType,
 						Mode = Keypicker.Mode,
 						Sync = Keypicker.Sync or true,
 						Value = Keypicker.Value or false,
@@ -171,9 +183,15 @@ do
 					TextBoxes[Index]:Set(Item.Value)
 				elseif Item.Type == "Keypicker" and Keypickers[Index] then
 					local Input = nil
-					if Item.Value.Input and Enum.KeyCode[Item.Value.Input] then
-						Input = Enum.KeyCode[Item.Value.Input]
+					
+					if Item.Value.Input then
+						if Item.Value.InputType == "KeyCode" and Enum.KeyCode[Item.Value.Input] then
+							Input = Enum.KeyCode[Item.Value.Input]
+						elseif Item.Value.InputType == "UserInputType" and Enum.UserInputType[Item.Value.Input] then
+							Input = Enum.UserInputType[Item.Value.Input]
+						end
 					end
+					
 					Keypickers[Index]:Set(Input, Item.Value.Mode)
 					if Item.Value.Sync ~= nil then
 						Keypickers[Index].Sync = Item.Value.Sync
