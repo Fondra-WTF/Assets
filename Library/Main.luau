@@ -2950,8 +2950,8 @@ do
 			local Objects = MainFrameOutline:GetDescendants()
 			table.insert(Objects, MainFrameOutline)
 
-			UserInputService.MouseIconEnabled = not Bool
 			CursorOutline.Visible = Bool
+			UserInputService.MouseIconEnabled = not Bool
 
 			for _, Object in next, Objects do
 				local Data = nil
@@ -3015,6 +3015,14 @@ do
 			end
 
 			Menu.Visible = Bool
+
+			task.spawn(function()
+				while Menu.Visible == true do
+					RunService.Stepped:Wait()
+					UserInputService.MouseIconEnabled = true
+					UserInputService.MouseBehavior = Enum.MouseBehavior.Default
+				end
+			end)
 		end
 
 		function Menu:Players(Properties)
