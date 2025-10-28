@@ -1213,7 +1213,7 @@ do
 			Display = Options.Display ~= false,
 			Flag = Options.Flag,
 			Callback = Options.Callback,
-			Input = Options.Input or Enum.KeyCode.E,
+			Input = Options.Input,
 			Mode = Options.Mode or "TOGGLE",
 			Menu = Options.Menu ~= false,
 			Sync = Options.Sync ~= false,
@@ -1255,8 +1255,10 @@ do
 		})
 		local KeybindLabel = Functions["Create"]("TextLabel", {
 			Parent = KeybindFill,
-			Text = Keys[Keypicker.Input]
-				or (Keypicker.Input.EnumType == Enum.KeyCode and UserInputService:GetStringForKeyCode(Keypicker.Input))
+			Text = Keypicker.Input
+					and (Keys[Keypicker.Input] or (Keypicker.Input.EnumType == Enum.KeyCode and UserInputService:GetStringForKeyCode(
+						Keypicker.Input
+					)) or " ")
 				or " ",
 			Position = UDim2.new(0.5, 0, 0.5, 0),
 			AnchorPoint = Vector2.new(0.5, 0.5),
@@ -1338,9 +1340,14 @@ do
 		end
 
 		function Keypicker:Set(Input, Mode)
-			local Display = Keys[Input]
-				or (Input and Input.EnumType == Enum.KeyCode and UserInputService:GetStringForKeyCode(Input))
-				or "UNKNOWN"
+			local Display
+			if Input == nil then
+				Display = " "
+			else
+				Display = Keys[Input]
+					or (Input.EnumType == Enum.KeyCode and UserInputService:GetStringForKeyCode(Input))
+					or "UNKNOWN"
+			end
 
 			if Display == "UNKNOWN" then
 				Display = " "
@@ -2477,8 +2484,8 @@ do
 		local Inset = GuiService:GetGuiInset()
 		local Outline = Functions["Create"]("TextButton", {
 			Size = UDim2.new(0, 206, 0, 23),
-			Position = UDim2.new(0, 10, 0, Inset.Y + 10),
-			AnchorPoint = Vector2.new(0, 0),
+			Position = UDim2.new(1, -10, 0, Inset.Y + 10),
+			AnchorPoint = Vector2.new(1, 0),
 			Visible = true,
 			Parent = MainGUI,
 		})
@@ -2507,9 +2514,9 @@ do
 		local Label = Functions["Create"]("TextLabel", {
 			Parent = Main,
 			Text = "??? | ??? | ??? | ???",
-			Position = UDim2.new(0, 5, 0, 2),
-			AnchorPoint = Vector2.new(0, 0),
-			TextXAlignment = Enum.TextXAlignment.Left,
+			Position = UDim2.new(1, -5, 0, 2),
+			AnchorPoint = Vector2.new(1, 0),
+			TextXAlignment = Enum.TextXAlignment.Right,
 			TextYAlignment = Enum.TextYAlignment.Top,
 			TextSize = 12,
 			FontFace = CustomFont,
@@ -2558,14 +2565,16 @@ do
 				if Input.UserInputType == Enum.UserInputType.MouseMovement then
 					local MousePosition = UserInputService:GetMouseLocation()
 					local TargetX, TargetY = MousePosition.X - Offset.X, MousePosition.Y - Offset.Y
-					local ViewportSize, FrameSize, AnchorPoint =
-						Camera.ViewportSize, DragFrame.AbsoluteSize, DragFrame.AnchorPoint
-					local MinX, MinY = FrameSize.X * AnchorPoint.X, FrameSize.Y * AnchorPoint.Y
-					local MaxX, MaxY =
-						ViewportSize.X - FrameSize.X * (1 - AnchorPoint.X),
-						ViewportSize.Y - FrameSize.Y * (1 - AnchorPoint.Y)
-					DragFrame.Position =
-						UDim2.new(0, math.clamp(TargetX, MinX, MaxX), 0, math.clamp(TargetY, MinY, MaxY))
+					local ViewportSize = Camera.ViewportSize
+					local FrameSize = DragFrame.AbsoluteSize
+
+					local ClampedX = math.clamp(TargetX, 0, ViewportSize.X - FrameSize.X)
+					local ClampedY = math.clamp(TargetY, 0, ViewportSize.Y - FrameSize.Y)
+
+					local ScaleX = (ClampedX + FrameSize.X) / ViewportSize.X
+					local ScaleY = ClampedY / ViewportSize.Y
+
+					DragFrame.Position = UDim2.new(ScaleX, 0, ScaleY, 0)
 				end
 			end)
 
