@@ -163,7 +163,7 @@ do
 		if Cache[Path] then
 			return Cache[Path]
 		end
-		
+
 		Functions["EnsurePath"](Path)
 
 		if not isfile(Path) then
@@ -959,16 +959,25 @@ do
 					end
 					State = "PRESSED"
 					ButtonTextLabel.Text = Options.Result
-					Functions["UpdateThemeRegistery"](ButtonTextLabel, { TextColor3 = "Accent", BackgroundColor3 = "Option Background" })
+					Functions["UpdateThemeRegistery"](
+						ButtonTextLabel,
+						{ TextColor3 = "Accent", BackgroundColor3 = "Option Background" }
+					)
 					task.spawn(function()
 						task.wait(1)
 						ButtonTextLabel.Text = Options.Text
-						Functions["UpdateThemeRegistery"](ButtonTextLabel, { TextColor3 = "Active Text", BackgroundColor3 = "Option Background" })
+						Functions["UpdateThemeRegistery"](
+							ButtonTextLabel,
+							{ TextColor3 = "Active Text", BackgroundColor3 = "Option Background" }
+						)
 						State = nil
 					end)
 				else
 					State = tick()
-					Functions["UpdateThemeRegistery"](ButtonTextLabel, { TextColor3 = "Accent", BackgroundColor3 = "Option Background" })
+					Functions["UpdateThemeRegistery"](
+						ButtonTextLabel,
+						{ TextColor3 = "Accent", BackgroundColor3 = "Option Background" }
+					)
 					task.spawn(function()
 						for i = 1, 200 do
 							if not State or State == "PRESSED" then
@@ -983,7 +992,10 @@ do
 						end
 						if State and State ~= "PRESSED" then
 							ButtonTextLabel.Text = Options.Text
-							Functions["UpdateThemeRegistery"](ButtonTextLabel, { TextColor3 = "Active Text", BackgroundColor3 = "Option Background" })
+							Functions["UpdateThemeRegistery"](
+								ButtonTextLabel,
+								{ TextColor3 = "Active Text", BackgroundColor3 = "Option Background" }
+							)
 							State = nil
 						end
 					end)
@@ -993,11 +1005,17 @@ do
 					task.spawn(Options.Callback)
 				end
 				ButtonTextLabel.Text = Options.Result
-				Functions["UpdateThemeRegistery"](ButtonTextLabel, { TextColor3 = "Accent", BackgroundColor3 = "Option Background" })
+				Functions["UpdateThemeRegistery"](
+					ButtonTextLabel,
+					{ TextColor3 = "Accent", BackgroundColor3 = "Option Background" }
+				)
 				task.spawn(function()
 					task.wait(1)
 					ButtonTextLabel.Text = Options.Text
-					Functions["UpdateThemeRegistery"](ButtonTextLabel, { TextColor3 = "Active Text", BackgroundColor3 = "Option Background" })
+					Functions["UpdateThemeRegistery"](
+						ButtonTextLabel,
+						{ TextColor3 = "Active Text", BackgroundColor3 = "Option Background" }
+					)
 				end)
 			end
 		end)
@@ -1239,7 +1257,7 @@ do
 			Parent = KeybindFill,
 			Text = Keys[Keypicker.Input]
 				or (Keypicker.Input.EnumType == Enum.KeyCode and UserInputService:GetStringForKeyCode(Keypicker.Input))
-				or "UNKNOWN",
+				or " ",
 			Position = UDim2.new(0.5, 0, 0.5, 0),
 			AnchorPoint = Vector2.new(0.5, 0.5),
 			TextXAlignment = Enum.TextXAlignment.Center,
@@ -1324,8 +1342,8 @@ do
 				or (Input and Input.EnumType == Enum.KeyCode and UserInputService:GetStringForKeyCode(Input))
 				or "UNKNOWN"
 
-			if Display == "UNKNOWN" or Display == "" or Display == "-" then
-				Display = "-"
+			if Display == "UNKNOWN" then
+				Display = " "
 				Keypicker.Input = nil
 			else
 				Keypicker.Input = Input
@@ -1334,14 +1352,14 @@ do
 			KeybindLabel.Text = Display
 			Keypicker.Mode = Mode
 
-			if Display == "-" then
+			DisplayKeybind:SetIndex(Options.Text)
+			DisplayKeybind:SetValue(Display)
+
+			if Display == " " then
 				DisplayKeybind:SetVisible(false)
 			else
 				DisplayKeybind:SetVisible(Options.Display)
 			end
-
-			DisplayKeybind:SetIndex(Options.Text)
-			DisplayKeybind:SetValue(Display)
 
 			for Id, Object in next, Labels do
 				Functions["UpdateThemeRegistery"](
