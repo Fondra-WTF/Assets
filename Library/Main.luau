@@ -168,7 +168,7 @@ do
 
 		if not isfile(Path) then
 			if not Link then
-				return Client:Kick("WTF??")
+				return
 			end
 
 			local Success, Result = pcall(function()
@@ -1362,7 +1362,7 @@ do
 			DisplayKeybind:SetIndex(Options.Text)
 			DisplayKeybind:SetValue(Display)
 
-			if Display == " " then
+			if Keypicker.Input == nil then
 				DisplayKeybind:SetVisible(false)
 			else
 				DisplayKeybind:SetVisible(Options.Display)
