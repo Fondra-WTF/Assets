@@ -1343,17 +1343,21 @@ do
 			local Display
 			if Input == nil then
 				Display = " "
+				Keypicker.Input = nil
+				DisplayKeybind:SetVisible(false)
 			else
 				Display = Keys[Input]
 					or (Input.EnumType == Enum.KeyCode and UserInputService:GetStringForKeyCode(Input))
 					or "UNKNOWN"
-			end
 
-			if Display == "UNKNOWN" then
-				Display = " "
-				Keypicker.Input = nil
-			else
-				Keypicker.Input = Input
+				if Display == "UNKNOWN" then
+					Display = " "
+					Keypicker.Input = nil
+					DisplayKeybind:SetVisible(false)
+				else
+					Keypicker.Input = Input
+					DisplayKeybind:SetVisible(Options.Display)
+				end
 			end
 
 			KeybindLabel.Text = Display
@@ -1361,12 +1365,6 @@ do
 
 			DisplayKeybind:SetIndex(Options.Text)
 			DisplayKeybind:SetValue(Display)
-
-			if Keypicker.Input == nil then
-				DisplayKeybind:SetVisible(false)
-			else
-				DisplayKeybind:SetVisible(Options.Display)
-			end
 
 			for Id, Object in next, Labels do
 				Functions["UpdateThemeRegistery"](
