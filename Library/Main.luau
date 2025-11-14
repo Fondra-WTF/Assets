@@ -1335,22 +1335,23 @@ do
 				if not Options.Menu then
 					return
 				end
+
 				Keypicker:Set(Keypicker.Input, Value)
 			end)
 		end
 
 		function Keypicker:Set(Input, Mode)
 			local Display
-			if Input == nil then
+			if Input == nil or Input == Enum.KeyCode.Delete then
 				Display = " "
 				Keypicker.Input = nil
 				DisplayKeybind:SetVisible(false)
 			else
 				Display = Keys[Input]
 					or (Input.EnumType == Enum.KeyCode and UserInputService:GetStringForKeyCode(Input))
-					or "UNKNOWN"
+					or nil
 
-				if Display == "UNKNOWN" then
+				if not Display then
 					Display = " "
 					Keypicker.Input = nil
 					DisplayKeybind:SetVisible(false)
