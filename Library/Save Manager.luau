@@ -46,8 +46,8 @@ do
 		local List = listfiles(self.Folder)
 		local Output = {}
 		for _, File in next, List do
-			if File:sub(-5) == ".json" then
-				local Position = File:find(".json", 1, true)
+			if File:sub(-4) == ".pro" then
+				local Position = File:find(".pro", 1, true)
 				local Start = Position
 				local Character = File:sub(Position, Position)
 				while Character ~= "/" and Character ~= "\\" and Character ~= "" do
@@ -79,27 +79,39 @@ do
 	end
 
 	function SaveManager:BuildConfigData()
-		local Config = {}
+		local Config = {
+			Toggles = {},
+			Sliders = {},
+			Dropdowns = {},
+			TextBoxes = {},
+			Keypickers = {},
+			Colorpickers = {}
+		}
+		
 		for Index, Toggle in next, Toggles do
 			if not self.Ignore[Index] then
-				Config[Index] = { Type = "Toggle", Value = Toggle.Value }
+				Config.Toggles[Index] = { Value = Toggle.Value }
 			end
 		end
+		
 		for Index, Slider in next, Sliders do
 			if not self.Ignore[Index] then
-				Config[Index] = { Type = "Slider", Value = Slider.Current }
+				Config.Sliders[Index] = { Value = Slider.Current }
 			end
 		end
+		
 		for Index, Dropdown in next, Dropdowns do
 			if not self.Ignore[Index] then
-				Config[Index] = { Type = "Dropdown", Value = Dropdown.Current }
+				Config.Dropdowns[Index] = { Value = Dropdown.Current }
 			end
 		end
+		
 		for Index, TextBox in next, TextBoxes do
 			if not self.Ignore[Index] then
-				Config[Index] = { Type = "TextBox", Value = TextBox.Text }
+				Config.TextBoxes[Index] = { Value = TextBox.Text }
 			end
 		end
+		
 		for Index, Keypicker in next, Keypickers do
 			if not self.Ignore[Index] then
 				local InputName = nil
@@ -114,31 +126,27 @@ do
 					end
 				end
 				
-				Config[Index] = {
-					Type = "Keypicker",
-					Value = {
-						Input = InputName,
-						InputType = InputType,
-						Mode = Keypicker.Mode,
-						Sync = Keypicker.Sync or true,
-						Value = Keypicker.Value or false,
-					},
+				Config.Keypickers[Index] = {
+					Input = InputName,
+					InputType = InputType,
+					Mode = Keypicker.Mode,
+					Sync = Keypicker.Sync or true,
+					Value = Keypicker.Value or false,
 				}
 			end
 		end
+		
 		for Index, Colorpicker in next, Colorpickers do
 			if not self.Ignore[Index] then
 				local Data = Colorpicker:Get()
-				Config[Index] = {
-					Type = "Colorpicker",
-					Value = {
-						Color = { Data.Color.R, Data.Color.G, Data.Color.B },
-						Alpha = Data.Alpha,
-						Mode = Data.Mode,
-					},
+				Config.Colorpickers[Index] = {
+					Color = { Data.Color.R, Data.Color.G, Data.Color.B },
+					Alpha = Data.Alpha,
+					Mode = Data.Mode,
 				}
 			end
 		end
+		
 		return Config
 	end
 
@@ -146,7 +154,7 @@ do
 		if not Name or Name:gsub(" ", "") == "" then
 			return self.Library:Notification("[SaveManager]: Invalid file name.", 3, Color3.fromRGB(255, 0, 0))
 		end
-		local Path = string.format("%s/%s.json", self.Folder, Name)
+		local Path = string.format("%s/%s.pro", self.Folder, Name)
 		if isfile(Path) then
 			return self.Library:Notification("[SaveManager]: Config already exists.", 3, Color3.fromRGB(255, 0, 0))
 		end
@@ -163,7 +171,7 @@ do
 		if not Name or Name == "" then
 			return self.Library:Notification("[SaveManager]: Invalid selection.", 3, Color3.fromRGB(255, 0, 0))
 		end
-		local Path = string.format("%s/%s.json", self.Folder, Name)
+		local Path = string.format("%s/%s.pro", self.Folder, Name)
 		if not isfile(Path) then
 			return self.Library:Notification("[SaveManager]: Config not found.", 3, Color3.fromRGB(255, 0, 0))
 		end
@@ -171,39 +179,89 @@ do
 		if not Data then
 			return self.Library:Notification("[SaveManager]: Failed to decode config.", 3, Color3.fromRGB(255, 0, 0))
 		end
-		for Index, Item in next, Data do
-			task.spawn(function()
-				if Item.Type == "Toggle" and Toggles[Index] then
-					Toggles[Index]:Set(Item.Value)
-				elseif Item.Type == "Slider" and Sliders[Index] then
-					Sliders[Index]:Set(Item.Value)
-				elseif Item.Type == "Dropdown" and Dropdowns[Index] then
-					Dropdowns[Index]:Set(Item.Value)
-				elseif Item.Type == "TextBox" and TextBoxes[Index] then
-					TextBoxes[Index]:Set(Item.Value)
-				elseif Item.Type == "Keypicker" and Keypickers[Index] then
-					local Input = nil
-					
-					if Item.Value.Input then
-						if Item.Value.InputType == "KeyCode" and Enum.KeyCode[Item.Value.Input] then
-							Input = Enum.KeyCode[Item.Value.Input]
-						elseif Item.Value.InputType == "UserInputType" and Enum.UserInputType[Item.Value.Input] then
-							Input = Enum.UserInputType[Item.Value.Input]
-						end
+		
+		-- Load Toggles
+		if Data.Toggles then
+			for Index, Item in next, Data.Toggles do
+				task.spawn(function()
+					if Toggles[Index] then
+						Toggles[Index]:Set(Item.Value)
 					end
-					
-					Keypickers[Index]:Set(Input, Item.Value.Mode)
-					if Item.Value.Sync ~= nil then
-						Keypickers[Index].Sync = Item.Value.Sync
-					end
-					Keypickers[Index].Value = Item.Value.Value or false
-				elseif Item.Type == "Colorpicker" and Colorpickers[Index] then
-					local Col = Item.Value.Color
-					local C = Color3.new(Col[1], Col[2], Col[3])
-					Colorpickers[Index]:Set(C, Item.Value.Alpha, Item.Value.Mode)
-				end
-			end)
+				end)
+			end
 		end
+		
+		-- Load Sliders
+		if Data.Sliders then
+			for Index, Item in next, Data.Sliders do
+				task.spawn(function()
+					if Sliders[Index] then
+						Sliders[Index]:Set(Item.Value)
+					end
+				end)
+			end
+		end
+		
+		-- Load Dropdowns
+		if Data.Dropdowns then
+			for Index, Item in next, Data.Dropdowns do
+				task.spawn(function()
+					if Dropdowns[Index] then
+						Dropdowns[Index]:Set(Item.Value)
+					end
+				end)
+			end
+		end
+		
+		-- Load TextBoxes
+		if Data.TextBoxes then
+			for Index, Item in next, Data.TextBoxes do
+				task.spawn(function()
+					if TextBoxes[Index] then
+						TextBoxes[Index]:Set(Item.Value)
+					end
+				end)
+			end
+		end
+		
+		-- Load Keypickers
+		if Data.Keypickers then
+			for Index, Item in next, Data.Keypickers do
+				task.spawn(function()
+					if Keypickers[Index] then
+						local Input = nil
+						
+						if Item.Input then
+							if Item.InputType == "KeyCode" and Enum.KeyCode[Item.Input] then
+								Input = Enum.KeyCode[Item.Input]
+							elseif Item.InputType == "UserInputType" and Enum.UserInputType[Item.Input] then
+								Input = Enum.UserInputType[Item.Input]
+							end
+						end
+						
+						Keypickers[Index]:Set(Input, Item.Mode)
+						if Item.Sync ~= nil then
+							Keypickers[Index].Sync = Item.Sync
+						end
+						Keypickers[Index].Value = Item.Value or false
+					end
+				end)
+			end
+		end
+		
+		-- Load Colorpickers
+		if Data.Colorpickers then
+			for Index, Item in next, Data.Colorpickers do
+				task.spawn(function()
+					if Colorpickers[Index] then
+						local Col = Item.Color
+						local C = Color3.new(Col[1], Col[2], Col[3])
+						Colorpickers[Index]:Set(C, Item.Alpha, Item.Mode)
+					end
+				end)
+			end
+		end
+		
 		if Notify then
 			self.Library:Notification(string.format("[SaveManager]: Loaded Config %q", Name), 3, "Accent")
 		end
@@ -213,7 +271,7 @@ do
 		if not Name or Name == "" then
 			return self.Library:Notification("[SaveManager]: Invalid Selection.", 3, Color3.fromRGB(255, 0, 0))
 		end
-		local Path = string.format("%s/%s.json", self.Folder, Name)
+		local Path = string.format("%s/%s.pro", self.Folder, Name)
 		if not isfile(Path) then
 			return self.Library:Notification("[SaveManager]: Config not found.", 3, Color3.fromRGB(255, 0, 0))
 		end
@@ -230,7 +288,7 @@ do
 		if not Name or Name == "" then
 			return self.Library:Notification("[SaveManager]: Invalid Selection.", 3, Color3.fromRGB(255, 0, 0))
 		end
-		local Path = string.format("%s/%s.json", self.Folder, Name)
+		local Path = string.format("%s/%s.pro", self.Folder, Name)
 		if not isfile(Path) then
 			return self.Library:Notification("[SaveManager]: Config not found.", 3, Color3.fromRGB(255, 0, 0))
 		end
