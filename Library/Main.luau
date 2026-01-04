@@ -2032,7 +2032,7 @@ do
 end
 
 do
-	function Library:Notification(String, Duration, Color)
+	function Library:Notification(String, Color, Duration)
 		local Notification = {}
 
 		table.insert(Library.Notifications, Notification)
