@@ -152,32 +152,32 @@ do
 
 	function SaveManager:SaveConfig(Name)
 		if not Name or Name:gsub(" ", "") == "" then
-			return self.Library:Notification("[SaveManager]: Invalid file name.", 3, Color3.fromRGB(255, 0, 0))
+			return self.Library:Notification("[SaveManager]: Invalid file name.", Color3.fromRGB(255, 0, 0), 3)
 		end
 		local Path = string.format("%s/%s.pro", self.Folder, Name)
 		if isfile(Path) then
-			return self.Library:Notification("[SaveManager]: Config already exists.", 3, Color3.fromRGB(255, 0, 0))
+			return self.Library:Notification("[SaveManager]: Config already exists.", Color3.fromRGB(255, 0, 0), 3)
 		end
 		local Config = self:BuildConfigData()
 		local Encoded = Encode(Config)
 		if not Encoded then
-			return self.Library:Notification("[SaveManager]: Failed to encode config.", 3, Color3.fromRGB(255, 0, 0))
+			return self.Library:Notification("[SaveManager]: Failed to encode config.", Color3.fromRGB(255, 0, 0), 3)
 		end
 		writefile(Path, Encoded)
-		self.Library:Notification(string.format("[SaveManager]: Saved Config %q", Name), 3, "Accent")
+		self.Library:Notification(string.format("[SaveManager]: Saved Config %q", Name), "Accent", 3)
 	end
 
 	function SaveManager:LoadConfig(Name, Notify)
 		if not Name or Name == "" then
-			return self.Library:Notification("[SaveManager]: Invalid selection.", 3, Color3.fromRGB(255, 0, 0))
+			return self.Library:Notification("[SaveManager]: Invalid selection.", Color3.fromRGB(255, 0, 0), 3)
 		end
 		local Path = string.format("%s/%s.pro", self.Folder, Name)
 		if not isfile(Path) then
-			return self.Library:Notification("[SaveManager]: Config not found.", 3, Color3.fromRGB(255, 0, 0))
+			return self.Library:Notification("[SaveManager]: Config not found.", Color3.fromRGB(255, 0, 0), 3)
 		end
 		local Data = Decode(readfile(Path))
 		if not Data then
-			return self.Library:Notification("[SaveManager]: Failed to decode config.", 3, Color3.fromRGB(255, 0, 0))
+			return self.Library:Notification("[SaveManager]: Failed to decode config.", Color3.fromRGB(255, 0, 0), 3)
 		end
 		
 		-- Load Toggles
@@ -263,54 +263,54 @@ do
 		end
 		
 		if Notify then
-			self.Library:Notification(string.format("[SaveManager]: Loaded Config %q", Name), 3, "Accent")
+			self.Library:Notification(string.format("[SaveManager]: Loaded Config %q", Name), "Accent", 3)
 		end
 	end
 
 	function SaveManager:OverrideConfig(Name)
 		if not Name or Name == "" then
-			return self.Library:Notification("[SaveManager]: Invalid Selection.", 3, Color3.fromRGB(255, 0, 0))
+			return self.Library:Notification("[SaveManager]: Invalid Selection.", Color3.fromRGB(255, 0, 0), 3)
 		end
 		local Path = string.format("%s/%s.pro", self.Folder, Name)
 		if not isfile(Path) then
-			return self.Library:Notification("[SaveManager]: Config not found.", 3, Color3.fromRGB(255, 0, 0))
+			return self.Library:Notification("[SaveManager]: Config not found.", Color3.fromRGB(255, 0, 0), 3)
 		end
 		local Config = self:BuildConfigData()
 		local Encoded = Encode(Config)
 		if not Encoded then
-			return self.Library:Notification("[SaveManager]: Failed to encode config.", 3, Color3.fromRGB(255, 0, 0))
+			return self.Library:Notification("[SaveManager]: Failed to encode config.", Color3.fromRGB(255, 0, 0), 3)
 		end
 		writefile(Path, Encoded)
-		self.Library:Notification(string.format("[SaveManager]: Overwrote Config %q", Name), 3, "Accent")
+		self.Library:Notification(string.format("[SaveManager]: Overwrote Config %q", Name), "Accent", 3)
 	end
 
 	function SaveManager:DeleteConfig(Name)
 		if not Name or Name == "" then
-			return self.Library:Notification("[SaveManager]: Invalid Selection.", 3, Color3.fromRGB(255, 0, 0))
+			return self.Library:Notification("[SaveManager]: Invalid Selection.", Color3.fromRGB(255, 0, 0), 3)
 		end
 		local Path = string.format("%s/%s.pro", self.Folder, Name)
 		if not isfile(Path) then
-			return self.Library:Notification("[SaveManager]: Config not found.", 3, Color3.fromRGB(255, 0, 0))
+			return self.Library:Notification("[SaveManager]: Config not found.", Color3.fromRGB(255, 0, 0), 3)
 		end
 		delfile(Path)
-		self.Library:Notification(string.format("[SaveManager]: Deleted Config %q", Name), 3, "Accent")
+		self.Library:Notification(string.format("[SaveManager]: Deleted Config %q", Name), "Accent", 3)
 	end
 
 	function SaveManager:SaveDefault(Name)
 		if not Name or Name == "" then
-			return self.Library:Notification("[SaveManager]: Invalid Selection.", 3, Color3.fromRGB(255, 0, 0))
+			return self.Library:Notification("[SaveManager]: Invalid Selection.", Color3.fromRGB(255, 0, 0), 3)
 		end
 		writefile(string.format("%s/Default.txt", self.Folder), Name)
-		self.Library:Notification(string.format("[SaveManager]: Set default config to %q", Name), 3, "Accent")
+		self.Library:Notification(string.format("[SaveManager]: Set default config to %q", Name), "Accent", 3)
 	end
 
 	function SaveManager:RemoveDefault()
 		local Path = string.format("%s/Default.txt", self.Folder)
 		if not isfile(Path) then
-			return self.Library:Notification("[SaveManager]: No default config found.", 3, Color3.fromRGB(255, 0, 0))
+			return self.Library:Notification("[SaveManager]: No default config found.", Color3.fromRGB(255, 0, 0), 3)
 		end
 		delfile(Path)
-		self.Library:Notification("[SaveManager]: Removed default config.", 3, "Accent")
+		self.Library:Notification("[SaveManager]: Removed default config.", "Accent", 3)
 	end
 
 	function SaveManager:LoadDefault()
